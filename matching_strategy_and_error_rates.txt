@@ -1,0 +1,56 @@
+Given a distance metric, the simplest matching strategy is to set a threshold (maximum distance) and to return all matches from other images within this threshold. Setting this threshold too high results in too many false positives - incorrect matches being returned. Setting it too low results in too many false negatives - too may correct matches being missed.
+
+We can quantify the performance of a matching algorithm at a particular threshold by first counting the number of true and false matches and match failures, using the following definitions (Fawcett 2006):
+
+- TP: true positives, i.e., number of correct matches
+- FN: false negatives, matches that were not correctly detected
+- FP: false positivies, proposed matches that are incorrect
+- TN: true negatives, non-matches that were correctly rejected
+
+And also
+
+- P = TP + FN : actual number of positives
+- N = TN + FP : actual number of negatives
+- P' = TP + FP : predicted number of positives
+- N' = TN + FN : predicted number of negatives
+
+These can be used to form a confusion matrix (contingency table).
+
+e.g.
+
+TP   FP   P'      PPV
+FN   TN   N'      ACC
+P    N    total
+
+TPR  FPR
+
+We can convert these numbers into unit rates by defining the following quantities.
+
+- true positive rate
+
+TPR = TP / (TP + FN) = TP / P
+
+
+- false positive rate
+
+FPR = FP / (FP + TN) = FP / N
+
+
+- positive predictive value 
+
+PPV = TP / (TP + FP) = TP / P'
+
+
+- accuracy
+
+ACC = (TP + TN) / (P + N)
+
+
+We can plot the FPR on the x-axis and the TPR on the y-axis to get a receiver operating characteristic curve (ROC). The method was originally developed for operators of military radar receivers starting in 1941, which led to its name.
+
+The area under the curve (AUC) is often used as a scalar metric of performance for the classifier. Note it would be 1 for a perfect classifier.
+
+References:
+
+Szeliski 200
+
