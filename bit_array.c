@@ -1,3 +1,8 @@
+
+#ifndef GUARD_GLIB
+#  include <glib-2.0/glib.h>
+#endif
+
 /* Use these inline functions to manipulate the bit arrays, represented as
  * 64-bit integers.
  */
@@ -16,14 +21,12 @@ static inline void bit_array_set(guint64* b, guint k) {
   *b |= (guint64)1 << (k % 64);
 }
 
-/******************************************************************************
- * Not used, but here for completeness.
- *
- * static inline void bit_array_unset(guint64* b, guint k) {
- *   *b &= ~((guint64)1 << (k % 64));
- * }
- ******************************************************************************
+/* Not used, but here for completeness.
  */
+
+static inline void bit_array_unset(guint64* b, guint k) {
+  *b &= ~((guint64)1 << (k % 64));
+}
 
 /* Sum up all the 1 bits in a guint64, left-shifting to iterate over the bits.
  */
