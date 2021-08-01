@@ -1,6 +1,6 @@
-
 #ifndef GUARD_GLIB
-#  include <glib-2.0/glib.h>
+#define GUARD_GLIB
+#include <glib-2.0/glib.h>
 #endif
 
 /* Use these inline functions to manipulate the bit arrays, represented as

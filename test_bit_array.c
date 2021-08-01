@@ -3,7 +3,8 @@
 #include <assert.h>
 
 #ifndef GUARD_GLIB
-#  include <glib-2.0/glib.h>
+#define GUARD_GLIB
+#include <glib-2.0/glib.h>
 #endif
 
 #include "bit_array.c"

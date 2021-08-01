@@ -23,10 +23,6 @@ struct idhash_result {
   guint64 iy;
 };
 
-/* A 3-d vector of 8-bit integers [0, 255], representing a single RGB pixel.
- */
-typedef guint8 PixelRGB[3];
-
 /* Compute the distance between two IDHashes, described by the given components
  * of difference hashes and importances, all represented by bit arrays
  * implemented on top of 64-bit integers.
