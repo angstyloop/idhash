@@ -1,33 +1,34 @@
-#ifndef INCLUDE_VIPS
-#define INCLUDE_VIPS
+#ifndef GUARD_VIPS
+#define GUARD_VIPS
 #include <vips/vips.h>
 #endif
 
 #include <inttypes.h>
 
-/* The guint64 data type is used as a bit array. Inline methods are defined
- * for manipulating these.
- *
- * A histogram of bit arrays is used to bin sort and find the median in 
- * linear time (as opposed to an n*logn sort). 
- */
+/********************************************************************** 
+ *                              DATA TYPES                            *  
+ **********************************************************************/ 
 
 /* A result containing the x-direction difference hash, y-direction difference
  * hash, x-direction importance, and y-direction importance, in that order.
  */
 typedef struct idhash_result idhash_result;
 struct idhash_result {
-  guint64 dx;
-  guint64 dy;
-  guint64 ix;
-  guint64 iy;
+  guint64 dx,
+  guint64 dy,
+  guint64 ix,
+  guint64 iy
 };
+
+/**********************************************************************  
+ *                            INTERFACE                               *
+ *********************************************************************/
 
 /* Compute the distance between two IDHashes, described by the given components
  * of difference hashes and importances, all represented by bit arrays
  * implemented on top of 64-bit integers.
  *
- * In math words:
+ * Math:
  *
  * 1. OR() the importances (union)
  * 2. XOR() the difference hashes (symmetric difference: in one, but not both) 
@@ -35,6 +36,70 @@ struct idhash_result {
  * 4. sum the 1's (counting members)
  * 5. add the sums for each component (adding orthogonal components).
  */
+static inline guint idhash_distance(
+  guint64 difference_hash_1_x,
+  guint64 difference_hash_1_y,
+  guint64 importance_1_x,
+  guint64 importance_1_y,
+  guint64 difference_hash_2_x, 
+  guint64 difference_hash_2_y,
+  guint64 importance_2_x,
+  guint64 importance_2_y);
+
+
+/* Compute the IDHash Distance between the two IDHashes whose components are 
+ * stored in the two given idhash_result objects.
+ */
+static inline guint idhash_dist(idhash_result res_1, idhash_result res_2);
+
+/* Print the x-direction difference hash, y-direction difference hash,
+ * x-direction importance, and y-direction importance, in that order,
+ * for a given IDHash result.
+ */
+static inline void idhash_print_result(idhash_result res);
+
+
+/* Print the difference hash given a histogram.
+ */
+static inline void histogram_print_hash(histogram hist);
+
+
+/* Print the importance given a histogram.
+ */
+static inline void histogram_print_importance(histogram hist);
+
+/* Computes the x and y IDHashes, on two concurrent threads.
+ *
+ * Prints the four bit arrays representing the x and y difference hashes and
+ * importances as four 64-bit integers, in this order:
+ *
+ * <dx> <dy> <ix> <iy>
+ *
+ * The IDHash Distance between two images is computed as:
+ * 
+ * dist = sum( (d1x ^ d2x) & (i1x | i2x) ) + sum( (d1y ^ d2y) & (i1y | i2y) )
+ *
+ * where the pseudocode function sum() counts the number of 1 bits, and the
+ * symbole ^, &, and | correspond to boolean logic operators XOR, AND, and OR r * respectively.
+ *
+ * The two components are orthogonal and can be computed separately, which 
+ * this implementation does on two separate threads.
+ */
+void idhash_pixels(
+  PixelRGB *pixels,
+  int width,
+  int height,
+  idhash_result* res);
+
+/* Write the the IDHash Components for the image at @filepath to standard 
+ * output.
+ */
+void idhash_filepath(char* filepath, idhash_result* res);
+
+/**********************************************************************/  
+/*                           IMPLEMENTATION                           */
+/**********************************************************************/ 
+
 static inline guint idhash_distance(
   guint64 difference_hash_1_x,
   guint64 difference_hash_1_y,
@@ -66,17 +131,11 @@ static inline guint idhash_distance(
  *******************************************************************/
 }
 
-/* The distance between two IDHash results.
- */
 static inline guint idhash_dist(idhash_result res_1, idhash_result res_2) {
   return idhash_distance(res_1.dx, res_1.dy, res_1.ix, res_1.iy,
     res_2.dx, res_2.dy, res_2.ix, res_2.iy);
 }
 
-/* Print the x-direction difference hash, y-direction difference hash,
- * x-direction importance, and y-direction importance, in that order,
- * for a given IDHash result.
- */
 static inline void idhash_print_result(idhash_result res) {
   printf("%" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT 
     " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT "\n",
@@ -84,8 +143,6 @@ static inline void idhash_print_result(idhash_result res) {
     res.ix, res.iy);
 }
 
-/* Print the difference hash given a histogram.
- */
 static inline void histogram_print_hash(histogram hist) {
   for (int x=0; x<8; ++x) {
     for (int y=0; y<8; ++y) {
@@ -97,8 +154,6 @@ static inline void histogram_print_hash(histogram hist) {
   }
 }
 
-/* Print the importance given a histogram.
- */
 static inline void histogram_print_importance(histogram hist) {
   for (int x=0; x<8; ++x) {
     for (int y=0; y<8; ++y) {
@@ -110,20 +165,8 @@ static inline void histogram_print_importance(histogram hist) {
   }
 }
 
-/* Computes the x and y IDHashes, on two concurrent threads.
- *
- * Prints the four bit arrays representing the x and y difference hashes and
- * importances as four 64-bit integers. They are printed in this order:
- *
- * <dx> <dy> <ix> <iy>
- *
- * You compute the distance between two images like this:
- * 
- * dist = sum( (d1x ^ d2x) & (i1x | i2x) ) + sum( (d1y ^ d2y) & (i1y | i2y) )
- *
- * where the pseudocode function sum() counts the number of 1 bits.
- */
-void idhash_pixels(PixelRGB *pixels, int width, int height, idhash_result* res) { 
+void idhash_pixels(PixelRGB *pixels, int width, int height, idhash_result* res)
+{ 
   if (width != 8 || height != 8) 
     vips_error_exit("Input pixel array should be 8x8 but is %ix%i instead.",
       width, height);
@@ -172,8 +215,6 @@ void idhash_pixels(PixelRGB *pixels, int width, int height, idhash_result* res) 
   //putchar('\n');
 }
 
-/* Print the IDHash for the image at @filepath.
- */
 void idhash_filepath(char* filepath, idhash_result* res) {
     VipsImage *in;
     PixelRGB *pixels;
@@ -205,7 +246,7 @@ void idhash_filepath(char* filepath, idhash_result* res) {
   g_object_unref(in);
   in = out;
 
-  /* Force image into memory. Streamers beware.
+  /* Force image into memory.
    */ 
   if(vips_image_wio_input(in)) {
     vips_error_exit("In file difference_hash.c:  In function "
@@ -223,3 +264,4 @@ void idhash_filepath(char* filepath, idhash_result* res) {
 
   g_object_unref(in);
 }   
+

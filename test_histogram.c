@@ -9,10 +9,22 @@
 
 #ifndef GUARD_BIT_ARRAY
 #define GUARD_BIT_ARRAY
-#include "bit_array.c"
+#include "bit_array.h"
 #endif
 
-#include "histogram.c"
+#include "histogram.h"
+static inline void histogram_insert(histogram* hist, guint8 j, int k);
+static inline guint histogram_get(histogram* hist, guint8 j, int k);
+static inline void histogram_remove(histogram* hist, int j, int k);
+static inline void histogram_importance(histogram* hist);
+static void histogram_median(histogram* hist);
+static void histogram_process_pixel_pair(histogram* hist, PixelRGB* pixels,
+  const int index, const int next);
+static void* histogram_thread_y(void* _arg);
+static void* histogram_thread_y(void* _arg);
+static void* histogram_thread_x(void* _arg);
+static inline void histogram_print_xy(histogram hist_x, histogram hist_y);
+
 
 static void test_histogram_insert(){
   guint8 bin_index=0;
@@ -179,6 +191,7 @@ static void test_histogram_thread_y(){
 
 static void test_histogram(){
   test_histogram_insert();
+  test_histogram_get();
   test_histogram_remove();
   test_histogram_median();
   test_histogram_importance();

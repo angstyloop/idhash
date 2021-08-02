@@ -1,42 +1,48 @@
-#include <stdlib.h>
-#include <stdio.h>
+/* 
+ * test_bit_array.c 
+ */
+
 #include <assert.h>
 
-#ifndef GUARD_GLIB
-#define GUARD_GLIB
-#include <glib-2.0/glib.h>
-#endif
+#include "bit_array.h"
+static inline guint bit_array_get(guint64 b, guint k);
+static inline void bit_array_set(guint64* b, guint k);
+static inline void bit_array_unset(guint64* b, guint k);
+static inline void bit_array_print_matrix(guint64 z);
 
-#include "bit_array.c"
-
-int test_bit_array_get(){
+static inline void test_bit_array_get(){
   guint64 bits = 5; // <61 zeroes>101
   guint k = 1;
   guint result = bit_array_get(bits, k);
-  return result == 0;
+  assert(result == 0);
 }
 
-int test_bit_array_set(){
+static inline void test_bit_array_set(){
   guint64 bits = 5;
   guint k = 1;
   bit_array_set(&bits, k);
   guint result = bit_array_get(bits, k);
-  return result == 1;
+  assert(result == 1);
 }
 
-int test_bit_array_unset(){
+static inline void test_bit_array_unset(){
   guint64 bits = 5;
   guint k = 1;
   bit_array_set(&bits, k);
   bit_array_unset(&bits, k);
   guint result = bit_array_get(bits, k);
-  return result == 0;
+  assert(result == 0);
 } 
 
-void test_bit_array() {
-  assert(test_bit_array_get());
-  assert(test_bit_array_set());
-  assert(test_bit_array_unset());
+static inline void test_bit_array_print_matrix() {
+  bit_array_print_matrix(G_MAXUINT64);//should be 64 ones. confirm w/eyeballs.
+}
+
+static inline void test_bit_array() {
+  test_bit_array_get();
+  test_bit_array_set();
+  test_bit_array_unset();
+  test_bit_array_print_matrix();
 }
 
 #ifdef TEST_BIT_ARRAY

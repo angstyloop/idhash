@@ -115,9 +115,14 @@ Later the bits in each bin are summed until the median is found. There is a hist
 
 One for the x-direction, and one for the y-direction. Uses pthread.
 
-##Using "big int" data types to simplify math expressions
+## Test coverage
 
-If your platform allows for 128 integer types, or you're using Boost or Java or something and you have access to the BigInteger class, you can simply concatenate the x- and y-components of the difference hash and importance for each image:
+Not exhaustive yet, but off the ground. The next step is to create a sample of many possible inputs for each of the test functions. For some of them, it is possible to be exhaustive - the inputs can be enumerated in acceptable time.
+
+## Using "big int" data types to simplify math expressions
+
+
+If your platform allows for 128 integer types, or you're using Boost or Java or something and you have access to a "big integer" class, you can simply concatenate the x- and y-components of the difference hash and importance for each image:
 
 Say the pseudocode function concat() creates a 2n-bit integer from 2 n-bit
 integers by sticking them together. Just say the left arg is the big end, 
@@ -127,12 +132,8 @@ d1 = concat(d1x, d1y),    d2 = concat(d2x, d2y),
 i1 = concat(i1x, i1y),    i2 = concat(i2x, i2y)
 
 Then you can do the same bit operations as we've done on 64-bit integers,
-but on a half as many 128-bit integers instead.
+but on a half as many 128-bit integers instead (syntactically only probably - your CPU architecture probably doesn't natively support a 128-bit integer type. if it does, cool!).
 
 dist = sum( (d1 ^ d2) & (i1 ^ i2) )
 
-And it looks nicer. And that's nice!
-
-I don't use int128_t because I have them separate to begin with, since
-each component is computed concurrently. Also my machine doesn't have a native 128-bit data type. E.g. unsigned long int is 8 bytes, or 64 bits. There are some (somewhat exotic) architectures that support such a wide integer type.
-
+And it looks nicer, which is cool.
