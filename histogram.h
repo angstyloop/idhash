@@ -1,4 +1,4 @@
-/* histogram.h: 
+/* histogram.h
  *
  * This file defines the histogram data type and methods used to manipulate 
  * it in order to produce an image hash from an array of pixels.
@@ -33,19 +33,12 @@
 #ifndef GUARD_BIT_ARRAY
 #define GUARD_BIT_ARRAY
 #include "bit_array.h"
-static inline guint bit_array_get(guint64 b, guint k);
-static inline void bit_array_set(guint64* b, guint k);
-static inline void bit_array_unset(guint64* b, guint k);
 #endif
 
-#ifndef GUARD_STDIO
+#ifndef GUARD_STDIO 
 #define GUARD_STDIO
 #include <stdio.h>
 #endif
-
-/********************************************************************** 
- *                              DATA TYPES                            *  
- **********************************************************************/ 
 
 /* A 3-d array of 8-bit integers (i.e. in the interval [0, 255]), representing 
  * a single RGB pixel.
@@ -76,26 +69,58 @@ struct histogram_thread_arg {
   PixelRGB* pixels;
 };
 
-/**********************************************************************  
- *                            INTERFACE                               *
- *********************************************************************/
-
 /* Set the kth bit in the jth bin to 1.
  */
-static inline void histogram_insert(histogram* hist, guint8 j, int k);
+void histogram_insert(histogram* hist, guint8 j, int k){ 
+  bit_array_set(&hist->bins[j], k);
+}
 
 /* Get the value of the kth bit in the jth bin. 
  */
-static inline guint histogram_get(histogram* hist, guint8 j, int k);
+guint histogram_get(histogram* hist, guint8 j, int k){
+  return bit_array_get(hist->bins[j], k);
+}
 
 /* Set set the kth bit in the jth bin to 0.
  */
-static inline void histogram_remove(histogram* hist, int j, int k);
+void histogram_remove(histogram* hist, int j, int k){
+ bit_array_unset(hist->bins+j, k);
+}
+
+/* Print the difference hash given a histogram.
+ */
+void histogram_print_hash(histogram hist) {
+  for (int x=0; x<8; ++x) {
+    for (int y=0; y<8; ++y) {
+      const int index = x + 8*y;
+      const int bit = bit_array_get(hist.hash, index);
+      printf("%i%*c", bit, 1, ' ');
+    }
+    putchar('\n');
+  }
+}
+
+/* Print the importance given a histogram.
+ */
+void histogram_print_importance(histogram hist) {
+  for (int x=0; x<8; ++x) {
+    for (int y=0; y<8; ++y) {
+      const int index = x + 8*y;
+      const int bit = bit_array_get(hist.importance, index);
+      printf("%i%*c", bit, 1, ' ');
+    }
+    putchar('\n');
+  }
+}
 
 /* Union the (empty) importance array together with the bins, but excluding 
  * bins below the median.
  */
-static inline void histogram_importance(histogram* hist);
+void histogram_importance(histogram* hist){
+  for (int i=hist->median; i<256; i++) {
+    hist->importance |= hist->bins[i];
+  }
+}
 
 /* Find and set histogram.median by summing the 1 bits in each bin until
  * half the the number of differences (64/2=32) is reached. Then save
@@ -105,57 +130,7 @@ static inline void histogram_importance(histogram* hist);
  * exceeding the median (since the median is an odd multiple of 1/2 in that
  * case).
  */
-static inline void histogram_median(histogram* hist);
-
-/* Insert the difference between the pixel at index and the next one 
- * into the histogram of bit arrays.
- *
- * Can use this same method for both x- and y-direction differences because
- * pixels is a flat array representation of a 2-d array.
- */
-static inline void histogram_process_pixel_pair(histogram* hist, PixelRGB* pixels,
-  const int index, const int next);
-
-/* Compute the y-direction difference hash and importance.
- */
-static inline void* histogram_thread_y(void* _arg);
-
-/* Compute the y-direction difference hash and importance.
- */
-static inline void* histogram_thread_y(void* _arg);
-
-/* Compute the x-direction difference hash and importance. 
- */
-static inline void* histogram_thread_x(void* _arg);
-
-/* Print the difference hashes and importances for both x- and y-directions
- * for a given x-histogram and y-histogram.
- */
-static inline void histogram_print_xy(histogram hist_x, histogram hist_y);
-
-/**********************************************************************/  
-/*                           IMPLEMENTATION                           */
-/**********************************************************************/ 
-
-static inline void histogram_insert(histogram* hist, guint8 j, int k){ 
-  bit_array_set(&hist->bins[j], k);
-}
-
-static inline guint histogram_get(histogram* hist, guint8 j, int k){
-  return bit_array_get(hist->bins[j], k);
-}
-
-static inline void histogram_remove(histogram* hist, int j, int k){
- bit_array_unset(hist->bins+j, k);
-}
-
-static inline void histogram_importance(histogram* hist){
-  for (int i=hist->median; i<256; i++) {
-    hist->importance |= hist->bins[i];
-  }
-}
-
-static inline void histogram_median(histogram* hist) {
+void histogram_median(histogram* hist) {
   for (int count=0, i=0; i<256; i++) {
     if ((count += bit_array_sum(hist->bins[i])) > 32) {
       hist->median=i;
@@ -164,7 +139,13 @@ static inline void histogram_median(histogram* hist) {
   }
 }
 
-static inline void histogram_process_pixel_pair(
+/* Insert the difference between the pixel at index and the next one 
+ * into the histogram of bit arrays.
+ *
+ * Can use this same method for both x- and y-direction differences because
+ * pixels is a flat array representation of a 2-d array.
+ */
+void histogram_process_pixel_pair(
   histogram* hist,
   PixelRGB* pixels,
   const int index,
@@ -177,7 +158,9 @@ static inline void histogram_process_pixel_pair(
   histogram_insert(hist, (guint8)(d >= 0 ? d : -d), index);
 }
 
-static inline void* histogram_thread_y(void* _arg) {
+/* Compute the y-direction difference hash and importance.
+ */
+static void* histogram_thread_y(void* _arg) {
   histogram_thread_arg* arg = (histogram_thread_arg*) _arg;
   for (int x=0; x<8; x++) {
     for (int y=0; y<7; y++) {
@@ -194,7 +177,9 @@ static inline void* histogram_thread_y(void* _arg) {
   pthread_exit(NULL);
 }
 
-static inline void* histogram_thread_x(void* _arg) {
+/* Compute the x-direction difference hash and importance. 
+ */
+static void* histogram_thread_x(void* _arg) {
   histogram_thread_arg* arg = (histogram_thread_arg*) _arg;
   for (int y=0; y<8; y++) {
     for (int x=0; x<7; x++) {
@@ -211,7 +196,10 @@ static inline void* histogram_thread_x(void* _arg) {
   pthread_exit(NULL);
 }
 
-static inline void histogram_print_xy(histogram hist_x, histogram hist_y) {
+/* Print the difference hashes and importances for both x- and y-directions
+ * for a given x-histogram and y-histogram.
+ */
+void histogram_print_xy(histogram hist_x, histogram hist_y) {
   printf("%" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT 
     " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT "\n",
     hist_x.hash, hist_y.hash,

@@ -16,47 +16,31 @@
 #include <stdio.h>
 #endif
 
-/*************************************************************************** 
- *                              INTERFACE                                  *
- ***************************************************************************/
-
-/* Use these inline functions to manipulate the bit arrays, represented 
+/* Use these functions to manipulate the bit arrays, represented 
  * as 64-bit integers.
  */
 
 /* Get the value of the kth bit from a bit array b.
  */
-static inline guint bit_array_get(guint64 z, guint k);
-
-/* Set the kth bit in a bit array b (i.e. set value to 1).
- */
-static inline void bit_array_set(guint64* z, guint k);
-
-/* Unset the kth bit in a bit array b (i.e. set value to 0).
- */
-static inline void bit_array_unset(guint64* z, guint k);
-
-/* Sum up all the 1 bits in a guint64, left-shifting to iterate over the bits.
- */
-static inline int bit_array_sum(guint64 z);
-
-/*************************************************************************** 
- *                              IMPLEMENTATION                             *
- ***************************************************************************/
-
-static inline guint bit_array_get(guint64 z, guint k) {
+guint bit_array_get(guint64 z, guint k) {
   return z & ((guint64)1 << (k % 64)) ? 1 : 0;
 }
 
-static inline void bit_array_set(guint64* z, guint k) {
+/* Set the kth bit in a bit array b (i.e. set value to 1).
+ */
+void bit_array_set(guint64* z, guint k) {
   *z |= (guint64)1 << (k % 64);
 }
 
-static inline void bit_array_unset(guint64* z, guint k) {
+/* Unset the kth bit in a bit array b (i.e. set value to 0).
+ */
+void bit_array_unset(guint64* z, guint k) {
   *z &= ~((guint64)1 << (k % 64));
 }
 
-static inline int bit_array_sum(guint64 z) {
+/* Sum up all the 1 bits in a guint64, left-shifting to iterate over the bits.
+ */
+int bit_array_sum(guint64 z) {
   int count = 0;
   while(z){
     count += z & 1;
@@ -65,7 +49,9 @@ static inline int bit_array_sum(guint64 z) {
   return count;
 }
 
-static inline void bit_array_print_matrix(guint64 z){
+/* Print the bit array as a square matrix of 1's and 0's.
+ */
+void bit_array_print_matrix(guint64 z){
   int d=0;//offset
   char s[129]={0};// 64 '1' or '0' + 56 ' ' + 8 '\n'  + 1 '\0' = 129 chars
   for(int i=0; i<8; ++i){

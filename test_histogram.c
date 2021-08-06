@@ -13,20 +13,11 @@
 #endif
 
 #include "histogram.h"
-static inline void histogram_insert(histogram* hist, guint8 j, int k);
-static inline guint histogram_get(histogram* hist, guint8 j, int k);
-static inline void histogram_remove(histogram* hist, int j, int k);
-static inline void histogram_importance(histogram* hist);
-static void histogram_median(histogram* hist);
-static void histogram_process_pixel_pair(histogram* hist, PixelRGB* pixels,
-  const int index, const int next);
-static void* histogram_thread_y(void* _arg);
-static void* histogram_thread_y(void* _arg);
+
 static void* histogram_thread_x(void* _arg);
-static inline void histogram_print_xy(histogram hist_x, histogram hist_y);
+static void* histogram_thread_y(void* _arg);
 
-
-static void test_histogram_insert(){
+void test_histogram_insert(){
   guint8 bin_index=0;
   int bit_index=1;
   histogram h={0}; 
@@ -34,7 +25,7 @@ static void test_histogram_insert(){
   assert(1==bit_array_get(h.bins[bin_index], bit_index));
 }
 
-static void test_histogram_remove(){
+void test_histogram_remove(){
   guint8 bin_index=0;
   int bit_index=1;
   histogram h={0};
@@ -43,7 +34,7 @@ static void test_histogram_remove(){
   assert(0==bit_array_get(h.bins[bin_index], bit_index));
 }
 
-static void test_histogram_get(){
+void test_histogram_get(){
   guint8 bin_index=0;
   int bit_index=1;
   histogram h={0};
@@ -98,7 +89,7 @@ histogram* init_test_histogram_1(histogram* h){
  * test the histogram_median function. 
  *
  */
-static void test_histogram_median(){
+void test_histogram_median(){
   histogram h={0};
   histogram_median(init_test_histogram_1(&h));
   assert(h.median == 128);
@@ -120,7 +111,7 @@ static void test_histogram_median(){
  * test the histogram_importance function. 
  *
  */
-static void test_histogram_importance(){
+void test_histogram_importance(){
   histogram h={0};
   histogram_importance(init_test_histogram_1(&h));
   assert(h.importance == G_MAXUINT64 - G_MAXUINT32);
@@ -146,7 +137,7 @@ PixelRGB* init_test_pixels_1(PixelRGB pixels [64]){
   return pixels;
 }
 
-static void test_histogram_process_pixel_pair(){
+void test_histogram_process_pixel_pair(){
   histogram h={0};
   PixelRGB pixels[64]={0};
 
@@ -169,7 +160,7 @@ static void test_histogram_process_pixel_pair(){
   assert(histogram_get(&h, 1, 0) == 1);
 }
 
-static void test_histogram_thread_x(){
+void test_histogram_thread_x(){
   histogram h={0};
   PixelRGB pixels[64]={0};
   histogram_thread_arg arg = {&h, init_test_pixels_0(pixels)};
@@ -179,7 +170,7 @@ static void test_histogram_thread_x(){
   assert(histogram_get(&h, 0, 0) == 64);
 }
 
-static void test_histogram_thread_y(){
+void test_histogram_thread_y(){
   histogram h={0};
   PixelRGB pixels[64]={0};
   histogram_thread_arg arg = {&h, init_test_pixels_0(pixels)};
@@ -189,7 +180,7 @@ static void test_histogram_thread_y(){
   assert(histogram_get(&h, 0, 0) == 64);
 }
 
-static void test_histogram(){
+void test_histogram(){
   test_histogram_insert();
   test_histogram_get();
   test_histogram_remove();

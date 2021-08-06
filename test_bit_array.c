@@ -5,19 +5,15 @@
 #include <assert.h>
 
 #include "bit_array.h"
-static inline guint bit_array_get(guint64 b, guint k);
-static inline void bit_array_set(guint64* b, guint k);
-static inline void bit_array_unset(guint64* b, guint k);
-static inline void bit_array_print_matrix(guint64 z);
 
-static inline void test_bit_array_get(){
+void test_bit_array_get(){
   guint64 bits = 5; // <61 zeroes>101
   guint k = 1;
   guint result = bit_array_get(bits, k);
   assert(result == 0);
 }
 
-static inline void test_bit_array_set(){
+void test_bit_array_set(){
   guint64 bits = 5;
   guint k = 1;
   bit_array_set(&bits, k);
@@ -25,7 +21,7 @@ static inline void test_bit_array_set(){
   assert(result == 1);
 }
 
-static inline void test_bit_array_unset(){
+void test_bit_array_unset(){
   guint64 bits = 5;
   guint k = 1;
   bit_array_set(&bits, k);
@@ -34,11 +30,11 @@ static inline void test_bit_array_unset(){
   assert(result == 0);
 } 
 
-static inline void test_bit_array_print_matrix() {
+void test_bit_array_print_matrix() {
   bit_array_print_matrix(G_MAXUINT64);//should be 64 ones. confirm w/eyeballs.
 }
 
-static inline void test_bit_array() {
+void test_bit_array() {
   test_bit_array_get();
   test_bit_array_set();
   test_bit_array_unset();

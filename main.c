@@ -1,3 +1,34 @@
+/* main.c
+ *
+ */
+
+#ifndef GUARD_BIT_ARRAY
+#define GUARD_BIT_ARRAY
+#include "bit_array.h"
+#endif
+
+#ifndef GUARD_HISTOGRAM
+#define GUARD_HISTOGRAM
+#include "histogram.h"
+static void* histogram_thread_x(void* _arg);
+static void* histogram_thread_y(void* _arg);
+#endif
+
+#ifndef GUARD_IDHASH
+#define GUARD_IDHASH
+#include "idhash.h"
+#endif
+
+#ifndef GUARD_STDIO
+#define GUARD_STDIO
+#include <stdio.h>
+#endif
+
+#ifndef GUARD_GLIB
+#define GUARD_GLIB 
+#include <glib.h>
+#endif
+
 #ifdef PRINT_RESULT_TO_STDOUT
 int main(int argc, char **argv) {
   if (VIPS_INIT(argv[0]))

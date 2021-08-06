@@ -1,10 +1,10 @@
 all: idhash-distance idhash-components
 
-idhash-distance: idhash.c bit_array.h histogram.h main.c
-	gcc -o idhash-distance -DPRINT_IDHASH_DISTANCE -g -Wall idhash.c bit_array.h histogram.h main.c `pkg-config vips --cflags --libs`
+idhash-distance: idhash.h bit_array.h histogram.h main.c
+	gcc -o idhash-distance -DPRINT_IDHASH_DISTANCE -g -Wall idhash.h bit_array.h histogram.h main.c `pkg-config vips --cflags --libs`
 
-idhash-components: idhash.c bit_array.h histogram.h main.c
-	gcc -o idhash-components -DPRINT_RESULT_TO_STDOUT -g -Wall idhash.c bit_array.h histogram.h main.c `pkg-config vips --cflags --libs` 
+idhash-components: idhash.h bit_array.h histogram.h main.c
+	gcc -o idhash-components -DPRINT_RESULT_TO_STDOUT -g -Wall idhash.h bit_array.h histogram.h main.c `pkg-config vips --cflags --libs` 
 
 test-bit-array: bit_array.h test_bit_array.c
 	gcc -DTEST_BIT_ARRAY -o test-bit-array -g -Wall bit_array.h test_bit_array.c `pkg-config glib-2.0 --cflags --libs` && ./test-bit-array
