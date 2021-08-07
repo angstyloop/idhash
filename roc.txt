@@ -1,2 +1,0 @@
-Compute the receiving operator characteristic (ROC) curve for an IDHash duplicate / non-duplicate classifier, using a set of pairs of images, where half the pairs are duplicates, and half are non-duplicates.
-

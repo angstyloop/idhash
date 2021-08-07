@@ -137,3 +137,13 @@ but on a half as many 128-bit integers instead (syntactically only probably - yo
 dist = sum( (d1 ^ d2) & (i1 ^ i2) )
 
 And it looks nicer, which is cool.
+
+# Notes on JPEG compression
+
+Q: Is there only one mathematically correct decoding of a JPEG?
+
+A: No. From the JPEG FAQ:
+
+"Another important aspect of JPEG is that decoders can trade off decoding speed against image quality, by using fast but inaccurate approximations to the required calculations. Some viewers obtain remarkable speedups this way."
+
+The same JPEG decoder applied to the same image twice doesn't have to produce the same exact bit stream either, since e.g. slight timing differences in concurrent operations could produce different results. 
