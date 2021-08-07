@@ -24,19 +24,11 @@ int copy(const char* in_path, const char* out_path){
   size_t n;
   FILE* in, * out;
   char* buf = calloc(BUF_SIZE, 1);
-  if(!(in = fopen(in_path, "rb"))){
-    printf("hai1");
-    return EXIT_FAILURE;
-  }
-  if(!(out = fopen(out_path, "wb"))) {
-    printf("hai2");
-    return EXIT_FAILURE;
-  }
+  if(!(in = fopen(in_path, "rb"))) return EXIT_FAILURE;
+  if(!(out = fopen(out_path, "wb"))) return EXIT_FAILURE;
   for(;;){
-    if(!(n = fread(buf, 1, BUF_SIZE, in)))
-      break;
-    if(!(fwrite(buf, 1, n, out)))
-      break;
+    if(!(n = fread(buf, 1, BUF_SIZE, in))) break;
+    if(!(fwrite(buf, 1, n, out))) break;
   }
   free(buf);
   fclose(in);
