@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <uuid/uuid.h>
 
-char* uuid(char out[37]){
+char* uuid(char out[UUID_STR_LEN]){
   uuid_t b;
   uuid_generate(b);
   uuid_unparse_lower(b, out);
@@ -35,7 +35,7 @@ char* uuid(char out[37]){
 }
 
 int main(){
-  char out[37]={0};
+  char out[UUID_STR_LEN]={0};
   puts(uuid(out));
   return EXIT_SUCCESS;
 }
