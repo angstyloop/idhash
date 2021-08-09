@@ -24,15 +24,11 @@ int copy(const char* in_path, const char* out_path){
   size_t n;
   FILE* in, * out;
   char* buf = calloc(BUF_SIZE, 1);
-  if(!(in = fopen(in_path, "rb"))) return EXIT_FAILURE;
-  if(!(out = fopen(out_path, "wb"))) return EXIT_FAILURE;
-  for(;;){
-    if(!(n = fread(buf, 1, BUF_SIZE, in))) break;
-    if(!(fwrite(buf, 1, n, out))) break;
-  }
+  if((in = fopen(in_path, "rb")) && (out = fopen(out_path, "wb")))
+    while((n = fread(buf, 1, BUF_SIZE, in)) && fwrite(buf, 1, n, out));
   free(buf);
-  fclose(in);
-  fclose(out);
+  if(in) fclose(in);
+  if(out) fclose(out);
   return EXIT_SUCCESS;
 }
 
@@ -40,13 +36,12 @@ int copy(const char* in_path, const char* out_path){
  *
  * BASH:
  *
- * gcc -DTEST_IT_OUT -Wall -g -o test_it_out copy.c
- * echo 'Hello, world!' > src_file.txt
- * ./test_it_out src_file.txt dst_file.txt
- * diff src_file.txt dst_file.txt
+ * gcc copy.c -o copy -Wall -g
+ * echo 'Hello, world!' > src.txt
+ * ./copy src.txt dst.txt
+ * [ -z "$(diff src.txt dst.txt)" ]
  *
  */
-#ifdef TEST_IT_OUT
 int main(int argc, char* argv[argc]){
   if(argc!=3){
     printf("Usage: %s <SOURCE> <DESTINATION>\n", argv[0]);
@@ -55,4 +50,3 @@ int main(int argc, char* argv[argc]){
   copy(argv[1], argv[2]);
   return EXIT_SUCCESS;
 }
-#endif
