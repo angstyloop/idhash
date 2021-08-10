@@ -44,6 +44,12 @@
 #include <stdio.h>
 #endif
 
+#ifndef GUARD_UUID
+#  define GUARD_UUID
+#  include <uuid/uuid.h>
+#endif
+
+
 #include <sys/types.h>
 #include <dirent.h>
 
@@ -54,8 +60,8 @@
 #define EXT_MAX 256
 #endif
 
-#ifndef PATH_MAX 256
-#define PATH_MAX 256
+#ifndef PATH_MAX 4096
+#define PATH_MAX 4096
 #endif
 
 #ifndef PATH_SEP
@@ -113,21 +119,94 @@ int main(){
     printf("Usage: %s\n");
   }
 
-  // generate a random integer
+  // generate a uuid in order to create a unique test source directory name 
+  char source_dir_name[PATH_MAX]={0};
+  {
+    char out[UUID_STR_LEN]={0};
+    snprintf(source_dir_name, PATH_MAX, "test-dir-%s", uuid(out));
+  }
 
-  // create a unique test source directory name
-  char source_dir_name
-
-  // create test source directory
+  // create test source directory (should not exist yet, thanks to uuid).
+  if(mkdir(source_dir_name, S_IRWU)){
+    fprintf(stderr, "Failed to create directory %s.", source_dir_name);
+  }
 
   // create test files in source directory
+  char file_name_1[PATH_MAX]={0}, file_name_2[PATH_MAX]={0};
+  snprintf(file_name_1, PATH_MAX, "%s/test-file-1.txt", source_dir_name);
+  snprintf(file_name_2, PATH_MAX, "%s/test-file-2.txt", source_dir_name);
+
+  FILE* f1=NULL, * f2=NULL;
+  if((f1 = fopen(fname1, "w") && (f2 = fopen(fname2, "w"){
+    fprintf(f1, "Hello, world!");
+    fprintf(f2, "Hello, place!");
+  }
+
+  if(f1){
+    fclose(f1); 
+    f1=NULL;
+  }
+   
+  if(f2){
+    fclose(f2);
+    f2=NULL;
+  }
 
   // create a unique test target directory name
+  char target_dir_name[PATH_MAX]={0};
+  {
+    char out[UUID_STR_LEN];
+    snprintf(target_dir_name, PATH_MAX, "test-dir-%s", uuid(out));
+  }
 
-  // create test target directory
+  // create test target directory (should not exist yet, thanks to uuid).
+  if(mkdir(target_dir_name, S_IRWU)){
+    fprintf(stderr, "Failed to create directory %s.", target_dir_name);
+  }
 
-  // test generate duplicates on the constructed source and target directories
+  // generate duplicates in target dir
+  generate_duplicates(source_dir_name, target_dir_name);
 
+  char exp_name_1_a[PATH_MAX]={0}, exp_name_1_b[PATH_MAX],
+   exp_name_2_a[PATH_MAX], exp_name_2_b[PATH_MAX];
+
+  snprintf(exp_name_1_a, PATH_MAX, "%s/test-file-1_a.txt",
+    target_dir_name);
+
+  snprintf(exp_name_1_b, PATH_MAX, "%s/test-file-1_b.txt",
+    target_dir_name);
+
+  snprintf(exp_name_2_a, PATH_MAX, "%s/test-file-2_a.txt",
+    target_dir_name);
+
+  snprintf(exp_name_2_b, PATH_MAX, "%s/test-file-2_b.txt",
+    target_dir_name);
+
+  assert((f1 = fopen(exp_name_1_a, "r")) && (f2 = fopen(exp_name_1_b, "r")));
+
+  if(f1){
+    fclose(f1); 
+    f1=NULL;
+  }
+   
+  if(f2){
+    fclose(f2);
+    f2=NULL;
+  }
+
+  assert((f2 = fopen(exp_name_2_a, "r")) && (f2 = fopen(exp_name_2_b, "r")));
+
+  if(f1){
+    fclose(f1); 
+    f1=NULL;
+  }
+   
+  if(f2){
+    fclose(f2);
+    f2=NULL;
+  }
+
+  return EXIT_SUCCESS;
 }
 #else 
 // Usage: ./generate-duplicates <SOURCE_DIR> <TARGET_DIR>
