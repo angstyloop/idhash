@@ -36,12 +36,13 @@ int copy(const char* in_path, const char* out_path){
  *
  * BASH:
  *
- * gcc copy.c -o copy -Wall -g
+ * gcc -DTEST_COPY copy.c -o copy -Wall -g
  * echo 'Hello, world!' > src.txt
  * ./copy src.txt dst.txt
  * [ -z "$(diff src.txt dst.txt)" ]
  *
  */
+#ifdef TEST_COPY
 int main(int argc, char* argv[argc]){
   if(argc!=3){
     printf("Usage: %s <SOURCE> <DESTINATION>\n", argv[0]);
@@ -50,3 +51,4 @@ int main(int argc, char* argv[argc]){
   copy(argv[1], argv[2]);
   return EXIT_SUCCESS;
 }
+#endif

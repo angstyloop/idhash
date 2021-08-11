@@ -30,20 +30,13 @@
 #include <string.h>
 #include <assert.h>
 
-#ifndef EXT_MAX
-#  define EXT_MAX 256
-#endif
+#define SZ_NAME 256
+#define SZ_PATH 4096
 
-#ifndef PATH_MAX
-#  define PATH_MAX 4096
-#endif
+#define PATH_SEP '/'
 
-#ifndef PATH_SEP
-#  define PATH_SEP '/'
-#endif
-
-void split(char name[PATH_MAX], char ext[EXT_MAX],
-  char path[PATH_MAX]){
+void split(char name[NAME_MAX], char ext[SZ_NAME],
+  char path[SZ_PATH]){
   char* p_null, * p_sep, * p_ext, * p_tr_sep=NULL;
   // Get a pointer to the terminating null character, so we don't keep calling
   // strchr/strrchr
@@ -86,12 +79,12 @@ void split(char name[PATH_MAX], char ext[EXT_MAX],
   // If there's a non-trailing extension dot, copy the extension to the output 
   // buffer. A trailing extension would be like "foo."
   if(has_nontr_ext) {
-    strncpy(ext, p_ext+1, EXT_MAX);
+    strncpy(ext, p_ext+1, SZ_NAME);
     // Set dot separator '.' to the null byte, so strncpy only sees the name
     *p_ext=0; 
   }
   // Copy to name buffer
-  strncpy(name , p_sep ? p_sep+1 : path, PATH_MAX);
+  strncpy(name , p_sep ? p_sep+1 : path, NAME_MAX);
   // Set dot separator back, if any
   if(has_nontr_ext) *p_ext = '.';
   // Set trailing separator back, if any
@@ -101,148 +94,148 @@ void split(char name[PATH_MAX], char ext[EXT_MAX],
 #ifdef TEST_SPLIT
 int main(){
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "foo.bar.baz";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "foo.bar.baz";
     split(name, ext, path);
     assert(!strcmp(name, "foo.bar"));
     assert(!strcmp(ext, "baz"));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "foo.bar.baz/";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "foo.bar.baz/";
     split(name, ext, path);
     assert(!strcmp(name, "foo.bar"));
     assert(!strcmp(ext, "baz"));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo.baz/fiz.boz/";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo.baz/fiz.boz/";
     split(name, ext, path);
     assert(!strcmp(name, "fiz"));
     assert(!strcmp(ext, "boz"));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo.baz/";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo.baz/";
     split(name, ext, path);
     assert(!strcmp(name, "foo"));
     assert(!strcmp(ext, "baz"));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo.baz";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo.baz";
     split(name, ext, path);
     assert(!strcmp(name, "foo"));
     assert(!strcmp(ext, "baz"));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo/bar...baz";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo/bar...baz";
     split(name, ext, path);
     assert(!strcmp(name, "bar.."));
     assert(!strcmp(ext, "baz"));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo/bar..baz";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo/bar..baz";
     split(name, ext, path);
     assert(!strcmp(name, "bar."));
     assert(!strcmp(ext, "baz"));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo/bar.";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo/bar.";
     split(name, ext, path);
     assert(!strcmp(name, "bar"));
     assert(!strcmp(ext, ""));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo/bar.baz";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo/bar.baz";
     split(name, ext, path);
     assert(!strcmp(name, "bar"));
     assert(!strcmp(ext, "baz"));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo/bar.baz/";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo/bar.baz/";
     split(name, ext, path);
     assert(!strcmp(name, "bar"));
     assert(!strcmp(ext, "baz"));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo/.bar.baz/";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo/.bar.baz/";
     split(name, ext, path);
     assert(!strcmp(name, ".bar"));
     assert(!strcmp(ext, "baz"));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo/..bar.baz/";
+    char name[SZ_PATH]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo/..bar.baz/";
     split(name, ext, path);
     assert(!strcmp(name, "..bar"));
     assert(!strcmp(ext, "baz"));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo/...bar.baz/";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo/...bar.baz/";
     split(name, ext, path);
     assert(!strcmp(name, "...bar"));
     assert(!strcmp(ext, "baz"));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = ".bar";
+    char name[SZ_PATH]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = ".bar";
     split(name, ext, path);
     assert(!strcmp(name, ".bar"));
     assert(!strcmp(ext, ""));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = ".bar.baz";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = ".bar.baz";
     split(name, ext, path);
     assert(!strcmp(name, ".bar"));
     assert(!strcmp(ext, "baz"));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = ".bar.";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = ".bar.";
     split(name, ext, path);
     assert(!strcmp(name, ".bar"));
     assert(!strcmp(ext, ""));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo/.bar/";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo/.bar/";
     split(name, ext, path);
     assert(!strcmp(name, ".bar"));
     assert(!strcmp(ext, ""));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo/.bar./";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo/.bar./";
     split(name, ext, path);
     assert(!strcmp(name, ".bar"));
     assert(!strcmp(ext, ""));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo/.bar../";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo/.bar../";
     split(name, ext, path);
     assert(!strcmp(name, ".bar."));
     assert(!strcmp(ext, ""));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo/.bar.../";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo/.bar.../";
     split(name, ext, path);
     assert(!strcmp(name, ".bar.."));
     assert(!strcmp(ext, ""));
   }
   { 
-    char name[PATH_MAX]={0}, ext[EXT_MAX]={0};
-    char path[PATH_MAX] = "/foo/.bar...baz/";
+    char name[NAME_MAX]={0}, ext[SZ_NAME]={0};
+    char path[SZ_PATH] = "/foo/.bar...baz/";
     split(name, ext, path);
     assert(!strcmp(name, ".bar.."));
     assert(!strcmp(ext, "baz"));

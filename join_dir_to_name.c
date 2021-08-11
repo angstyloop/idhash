@@ -25,51 +25,64 @@
 #  include <stdio.h>
 #endif
 
-#ifndef PATH_MAX
-#  define PATH_MAX 4096 //make large enough to hold any path
+#ifndef GUARD_ASSERT
+#  define GUARD_ASSERT
+#  include <assert.h>
+#endif
+
+#ifndef GUARD_STRING
+#  define GUARD_STRING
+#  include <string.h>
+#endif
+
+#ifndef SZ_PATH
+#  define SZ_PATH 4096 //make large enough to hold any path
 #endif
 
 #ifndef PATH_SEP
 #  define PATH_SEP '/'
 #endif
 
-void join_dir_to_name(char out_buf[PATH_MAX], char* dir, char* name){
-  char sep[1]="";
-  char* p = strrchr(dir, '\0');         // dir last non-null char
-  if(*(p-1)) *sep=PATH_SEP;             // avoid 2x '/'
-  snprintf(out_buf, PATH_MAX, "%s%s%s", // print sep as needed
-    dir, sep, name);
+void join_dir_to_name(char out_buf[SZ_PATH], char dir[static 1], char* name){
+  char sep[1] = "";
+  char* p = strchr(dir, '\0');
+  if(*dir && *(p-1) != PATH_SEP) *sep = PATH_SEP;
+  snprintf(out_buf, SZ_PATH, "%s%s%s", dir, sep, name);
 }
 
 #ifdef TEST_JOIN_DIR_TO_NAME
-int main(int argc, char* argv[argc]) {
-  if(argc!=3){
-    printf("Usage: %s <DIR> <NAME>", argv[0]);
-    exit(EXIT_FAILURE);
-  }
-
-  char buf[path_max];
-  char* expect = "/foo/bar/baz";
+int main() {
+  char buf[SZ_PATH];
 
   /* Handle trailing '/' in @dir
    */
-  char* dir = "/foo/bar/";
-  char* name = "baz";
-  join_dir_to_name(buf, dir, name);
-  assert(!strcmp(buf, expect));
+  {
+    char* dir = "/foo/bar/";
+    char* name = "baz";
+    char* expect = "/foo/bar/baz";
+    join_dir_to_name(buf, dir, name);
+    assert(!strcmp(buf, expect));
+  }
 
   /* Handle no trailing '/' in @dir
    */
-  dir = "/foo/bar";
-  join_dir_to_name(buf, dir, name);
-  assert(!strcmp(buf, expect));
+  {
+    char* dir = "/foo/bar";
+    char* name = "baz";
+    char* expect = "/foo/bar/baz";
+    join_dir_to_name(buf, dir, name);
+    assert(!strcmp(buf, expect));
+  }
 
   /* Does NOT handle leading '/' in @name
    */
-  expect = "/foo/bar//baz"
-  name = "/baz";
-  join_dir_to_name(buf, dir, name);
-  assert(!strcmp(buf, expect));
+  {
+    char* dir = "/foo/bar/";
+    char* name = "/baz";
+    char* expect = "/foo/bar//baz";
+    join_dir_to_name(buf, dir, name);
+    assert(!strcmp(buf, expect));
+  }
 
   return EXIT_SUCCESS;
 }
