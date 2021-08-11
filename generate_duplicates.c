@@ -67,35 +67,34 @@
 #define PATH_SEP '/'
 #endif
 
-void generate_duplicates(char source[SZ_PATH], char dest[SZ_PATH]) {
+void generate_duplicates(char source_dir[SZ_PATH], char dest_dir[SZ_PATH]) {
   // Open source dir
-  DIR* d = opendir(source);
+  DIR* d = opendir(source_dir);
   int fd;
   struct dirent* e;
   struct stat stat;
+  char name[SZ_NAME]={0}, ext[SZ_NAME]={0}, in_path[SZ_PATH]={0},
+    out_path_a[SZ_PATH]={0}, out_path_b[SZ_PATH]={0}, 
+    name_wext_a[3*SZ_NAME]={0}, name_wext_b[3*SZ_NAME]={0};
   if(d){
     // Loop over directory entries.
     while((e = readdir(d))){
+      // Form input file path from dir and entry name.
+      join_dir_to_name(in_path, source_dir, e->d_name);
       // Stat the entry, so we can get the type from the stat mode.
-      if(0>(fd = open(e->d_name, O_RDONLY)) || fstat(fd, &stat)){
+      if(0>(fd = open(in_path, O_RDONLY)) || fstat(fd, &stat)){
         fprintf(stderr, "Failed to inspect %s\n", e->d_name);
         exit(EXIT_FAILURE);
       }
       // Only copy regular files. Check using S_ISREG macro and the stat mode.
       if(S_ISREG(stat.st_mode)){
-        char name[SZ_NAME]={0}, ext[SZ_NAME]={0},
-          in_path[SZ_PATH]={0}, out_path_a[SZ_PATH]={0}, 
-          out_path_b[SZ_PATH]={0},
-          name_wext_a[SZ_PATH]={0}, name_wext_b[SZ_PATH]={0};
-        // Form input file path from dir and entry name.
-        join_dir_to_name(in_path, source, e->d_name);
         // Split into name and extension. e.g. "/foo/bar.baz" -> "bar" and "baz"
         split(name, ext, in_path);
-        // Make output paths with _a and _b extensions in the names.
-        snprintf(name_wext_a, SZ_PATH, "%s_a.%s", name, ext);
-        snprintf(name_wext_b, SZ_PATH, "%s_b.%s", name, ext);
-        join_dir_to_name(out_path_a, dest, name_wext_a);
-        join_dir_to_name(out_path_b, dest, name_wext_b);
+        // Make output names with _a and _b extensions in the names.
+        snprintf(name_wext_a, 3*SZ_NAME, "%s_a.%s", name, ext);
+        snprintf(name_wext_b, 3*SZ_NAME, "%s_b.%s", name, ext);
+        join_dir_to_name(out_path_a, dest_dir, name_wext_a);
+        join_dir_to_name(out_path_b, dest_dir, name_wext_b);
         // Use constructed input and output paths to make two copies.
         if(copy(in_path, out_path_a) || copy(in_path, out_path_b)){
           fprintf(stderr, "Couldn't copy file %s.", in_path);
@@ -121,14 +120,15 @@ int main(){
   }
 
   // create test source directory (should not exist yet, thanks to uuid).
-  if(mkdir(source_dir_name, 0600)){
+  if(mkdir(source_dir_name, 0777)){
     fprintf(stderr, "Failed to create directory %s.", source_dir_name);
+    exit(EXIT_FAILURE);
   }
 
   // create test files in source directory
   char file_name_1[SZ_PATH]={0}, file_name_2[SZ_PATH]={0};
-  snprintf(file_name_1, SZ_PATH, "%s/test-file-1.txt", source_dir_name);
-  snprintf(file_name_2, SZ_PATH, "%s/test-file-2.txt", source_dir_name);
+  join_dir_to_name(file_name_1, source_dir_name, "test-file-1.txt");
+  join_dir_to_name(file_name_2, source_dir_name, "test-file-2.txt");
 
   // Print some text to the test source files, then close them.
   FILE* f1=NULL, * f2=NULL;
@@ -154,7 +154,7 @@ int main(){
   }
 
   // Create test target directory (should not exist yet, thanks to uuid).
-  if(mkdir(target_dir_name, 0600)){
+  if(mkdir(target_dir_name, 0777)){
     fprintf(stderr, "Failed to create directory %s.", target_dir_name);
   }
 
@@ -164,14 +164,10 @@ int main(){
   // Form the expected names.
   char exp_name_1_a[SZ_PATH]={0}, exp_name_1_b[SZ_PATH]={0},
    exp_name_2_a[SZ_PATH]={0}, exp_name_2_b[SZ_PATH]={0};
-  snprintf(exp_name_1_a, SZ_PATH, "%s%s", target_dir_name, 
-    "/test-file-1_a.txt");
-  snprintf(exp_name_1_b, SZ_PATH, "%s%s", target_dir_name, 
-    "/test-file-1_b.txt");
-  snprintf(exp_name_2_a, SZ_PATH, "%s%s", target_dir_name, 
-    "/test-file-2_a.txt");
-  snprintf(exp_name_2_b, SZ_PATH, "%s%s", target_dir_name, 
-    "/test-file-2_b.txt");
+  join_dir_to_name(exp_name_1_a, target_dir_name, "test-file-1_a.txt");
+  join_dir_to_name(exp_name_1_b, target_dir_name, "test-file-1_b.txt");
+  join_dir_to_name(exp_name_2_a, target_dir_name, "test-file-2_a.txt");
+  join_dir_to_name(exp_name_2_b, target_dir_name, "test-file-2_b.txt");
 
   // Assert the files in target dir were created with the expected names.
   assert((f1 = fopen(exp_name_1_a, "r")) && (f2 = fopen(exp_name_1_b, "r")));
