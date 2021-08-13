@@ -8,7 +8,7 @@
  *
  *  Compile
  * 
- *  gcc generate_nonduplicates -o generate_nonduplicates -luuid
+ *  gcc generate_nonduplicates.c -o generate-nonduplicates -luuid
  *
  *
  *  Usage
@@ -18,7 +18,7 @@
  *
  *  Compile Test
  *
- *  gcc generate_nonduplicates -o test-generate-nonduplicates -luuid
+ *  gcc generate_nonduplicates.c -o test-generate-nonduplicates -luuid
  *    -DTEST_GENERATE_NONDUPLICATES
  * 
  * 
@@ -76,34 +76,33 @@ void generate_nonduplicates(char source_dir[SZ_PATH], char target_dir[SZ_PATH]){
   int fd;
   struct dirent* e;
   struct stat stat;
-  char name[SZ_NAME], ext[SZ_NAME], in_path[SZ_PATH]={0}, out_path[SZ_PATH]={0},
-    out_path_a[SIZE_PATH]={0}, out_path_b[SIZE_PATH]={0},
+  char name[SZ_NAME], ext[SZ_NAME], in_path[SZ_PATH]={0},
+    out_path_a[SZ_PATH]={0}, out_path_b[SZ_PATH]={0},
     name_wext_a[3*SZ_NAME]={0}, name_wext_b[3*SZ_NAME]={0};
   if(d){
     while((e = readdir(d))){
       join_dir_to_name(in_path, source_dir, e->d_name);
       if(0>(fd = open(in_path, O_RDONLY)) || fstat(fd, &stat)){
-        fprintf(stderr, "");
+        fprintf(stderr, "Failed to open file for reading %s", in_path);
         exit(EXIT_FAILURE);
       }
       if(S_ISREG(stat.st_mode)){
         split(name, ext, in_path);
         snprintf(name_wext_a, 3*SZ_NAME, "%s_a.%s", name, ext);
-        snprintf(name_wext_a, 3*SZ_NAME, "%s_b.%s", name, ext);
+        snprintf(name_wext_b, 3*SZ_NAME, "%s_b.%s", name, ext);
         join_dir_to_name(out_path_a, target_dir, name_wext_a);
         join_dir_to_name(out_path_b, target_dir, name_wext_b);
         if(copy(in_path, out_path_a) || copy(in_path, out_path_b)){
           close(fd);
           closedir(d);
           fprintf(stderr, "Couldn't copy file %s", in_path);
-          return(EXIT_FAILURE);
+          exit(EXIT_FAILURE);
         } 
       }
       close(fd);
     }
     closedir(d);
   }else{
-    close(fd);
     fprintf(stderr, "Couldn't open directory.");
     exit(EXIT_FAILURE);
   }
@@ -113,18 +112,18 @@ void generate_nonduplicates(char source_dir[SZ_PATH], char target_dir[SZ_PATH]){
 int main(){
   char source_dir_name[SZ_NAME];
   {
-    char out[uuid_str_len]={0};
+    char out[UUID_STR_LEN]={0};
     snprintf(source_dir_name, SZ_NAME, "test-dir-%s", gen_uuid_str(out));
   }
   if(mkdir(source_dir_name, 0777)){
     fprintf(stderr, "Failed to create directory %s", source_dir_name);
     exit(EXIT_FAILURE);
   } 
-  char test_path_1[SZ_PATH], file_name_2[SZ_PATH];
+  char test_path_1[SZ_PATH], test_path_2[SZ_PATH];
   join_dir_to_name(test_path_1, source_dir_name, "test-file-1.txt");
   join_dir_to_name(test_path_2, source_dir_name, "test-file-2.txt");
 
-  FILE* f1=NULL, f2=NULL;
+  FILE* f1=NULL, * f2=NULL;
   if((f1 = fopen(test_path_1, "w")) && (f2 = fopen(test_path_2, "w"))){
     fprintf(f1, "Hello, world!");
     fprintf(f2, "Hello, place!");
@@ -146,7 +145,7 @@ int main(){
     fprintf(stderr, "Failed to created directory %s.\n", target_dir_name);
     return(EXIT_FAILURE);
   } 
-  generate_duplicates(source_dir_name, target_dir_name);
+  generate_nonduplicates(source_dir_name, target_dir_name);
   char exp_path_1_a[SZ_PATH], exp_path_1_b[SZ_PATH], exp_path_2_a[SZ_PATH],
     exp_path_2_b[SZ_PATH];
   join_dir_to_name(exp_path_1_a, target_dir_name, "test-file-1_a.txt");
@@ -155,7 +154,7 @@ int main(){
   join_dir_to_name(exp_path_2_b, target_dir_name, "test-file-2_b.txt");
   assert((f1 = fopen(exp_path_1_a, "r")) && (f2 = fopen(exp_path_1_b, "r")));
   if(f1){
-    fclose(f2)
+    fclose(f1);
     f1=NULL;
   }
   if(f2){
@@ -164,7 +163,7 @@ int main(){
   }
   assert((f1 = fopen(exp_path_2_a, "r")) && (f2 = fopen(exp_path_2_b, "r")));
   if(f1){
-    fclose(f2)
+    fclose(f1);
     f1=NULL;
   }
   if(f2){

@@ -96,7 +96,6 @@ void generate_numbered_files(char source_dir[SZ_PATH], char target_dir[SZ_PATH],
     }
     closedir(d);
   }else{
-    close(fd);
     fprintf(stderr, "Couldn't open directory.");
     exit(EXIT_FAILURE);
   }
