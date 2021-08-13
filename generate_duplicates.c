@@ -138,13 +138,13 @@ int main(){
   }
 
   // create test files in source directory
-  char file_name_1[SZ_PATH]={0}, file_name_2[SZ_PATH]={0};
-  join_dir_to_name(file_name_1, source_dir_name, "test-file-1.txt");
-  join_dir_to_name(file_name_2, source_dir_name, "test-file-2.txt");
+  char test_path_1[SZ_PATH]={0}, test_path_2[SZ_PATH]={0};
+  join_dir_to_name(test_path_1, source_dir_name, "test-file-1.txt");
+  join_dir_to_name(test_path_2, source_dir_name, "test-file-2.txt");
 
   // Print some text to the test source files, then close them.
   FILE* f1=NULL, * f2=NULL;
-  if((f1 = fopen(file_name_1, "w")) && (f2 = fopen(file_name_2, "w"))){
+  if((f1 = fopen(test_path_1, "w")) && (f2 = fopen(test_path_2, "w"))){
     fprintf(f1, "Hello, world!");
     fprintf(f2, "Hello, place!");
   }
@@ -204,8 +204,8 @@ int main(){
 
   // Clean up.
   if(remove(exp_name_1_a) || remove(exp_name_1_b) || remove(exp_name_2_a)
-    || remove(exp_name_2_b) || remove(target_dir_name) || remove(file_name_1)
-    || remove(file_name_2) || remove(source_dir_name)){
+    || remove(exp_name_2_b) || remove(target_dir_name) || remove(test_path_1)
+    || remove(test_path_2) || remove(source_dir_name)){
     fprintf(stderr, "Failed to delete temporary files and directories.");
     exit(EXIT_FAILURE);
   }

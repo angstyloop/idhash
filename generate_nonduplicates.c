@@ -111,7 +111,16 @@ void generate_nonduplicates(char source_dir[SZ_PATH], char target_dir[SZ_PATH]){
 
 #ifdef TEST_GENERATE_NONDUPLICATES
 int main(){
-  
+  char source_dir_name[SZ_NAME];
+  {
+    char out[uuid_str_len]={0};
+    snprintf(source_dir_name, SZ_NAME, "test-dir-%s", gen_uuid_str(out));
+  }
+  if(mkdir(source_dir_name, 0777)){
+    fprintf(stderr, "Failed to create directory %s", source_dir_name);
+    exit(EXIT_FAILURE);
+  } 
+  char test_path_1[SZ_PATH], file_name_2[SZ_PATH];
 }
 #else
 int main(int argc, char* argv[]){
