@@ -1,10 +1,8 @@
 /* generate_duplicates.c
  *
- * Defines function generate_duplicates and test main
- *
- * Copy all regular files in a source directory to a target directory. Makes 
- * two copies of each source file. Adds suffix (_a or _b) to the name, before 
- * the extension.
+ * Copy all regular files in a source directory to a target directory. Make
+ * two copies of each source file. Add suffix to each name ( _a or _b) to the 
+ * name, before the extension.
  *
  * E.g.
  *
@@ -16,7 +14,7 @@
  * gcc generate_duplicates.c -DTEST_GENERATE_DUPLICATES -luuid \
  * -o test-generate-duplicates -Wall -g
  *
- * gcc generate_duplicates.c -o generate-duplicates -Wall -g
+ * gcc generate_duplicates.c -o generate-duplicates -Wall -g -luuid
  * 
  * 
  * Run 
@@ -49,6 +47,23 @@
 #  include <uuid/uuid.h>
 #endif
 
+#ifndef GUARD_UNISTD
+#  define GUARD_UNISTD
+#  include <unistd.h>
+#endif
+
+#ifndef SZ_NAME
+#  define SZ_NAME 256
+#endif
+
+#ifndef SZ_PATH
+#  define SZ_PATH 4096
+#endif
+
+#ifndef PATH_SEP
+#  define PATH_SEP '/'
+#endif
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -60,14 +75,7 @@
 #include "uuid.c"
 #include "split.c"
 
-#define SZ_NAME 256
-#define SZ_PATH 4096
-
-#ifndef PATH_SEP
-#define PATH_SEP '/'
-#endif
-
-void generate_duplicates(char source_dir[SZ_PATH], char dest_dir[SZ_PATH]) {
+void generate_duplicates(char source_dir[SZ_PATH], char target_dir[SZ_PATH]) {
   // Open source dir
   DIR* d = opendir(source_dir);
   int fd;
@@ -93,20 +101,24 @@ void generate_duplicates(char source_dir[SZ_PATH], char dest_dir[SZ_PATH]) {
         // Make output names with _a and _b extensions in the names.
         snprintf(name_wext_a, 3*SZ_NAME, "%s_a.%s", name, ext);
         snprintf(name_wext_b, 3*SZ_NAME, "%s_b.%s", name, ext);
-        join_dir_to_name(out_path_a, dest_dir, name_wext_a);
-        join_dir_to_name(out_path_b, dest_dir, name_wext_b);
+        join_dir_to_name(out_path_a, target_dir, name_wext_a);
+        join_dir_to_name(out_path_b, target_dir, name_wext_b);
         // Use constructed input and output paths to make two copies.
         if(copy(in_path, out_path_a) || copy(in_path, out_path_b)){
+          close(fd);
+          closedir(d);
           fprintf(stderr, "Couldn't copy file %s.", in_path);
           exit(EXIT_FAILURE);
         }
       }
+      close(fd);
     }
+    closedir(d);
   }else{
+    close(fd);
     fprintf(stderr, "Couldn't open directory.");
     exit(EXIT_FAILURE);
   }
-  closedir(d);
 }
 
 #ifdef TEST_GENERATE_DUPLICATES
@@ -156,6 +168,7 @@ int main(){
   // Create test target directory (should not exist yet, thanks to uuid).
   if(mkdir(target_dir_name, 0777)){
     fprintf(stderr, "Failed to create directory %s.", target_dir_name);
+    exit(EXIT_SUCCESS);
   }
 
   // Generate duplicates in target dir.

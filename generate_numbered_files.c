@@ -94,14 +94,12 @@ void generate_numbered_files(char source_dir[SZ_PATH], char target_dir[SZ_PATH],
       }
       close(fd);
     }
+    closedir(d);
   }else{
     close(fd);
-    closedir(d);
     fprintf(stderr, "Couldn't open directory.");
     exit(EXIT_FAILURE);
   }
-  close(fd);
-  closedir(d);
 }
 
 #ifdef TEST_GENERATE_NUMBERED_FILES
@@ -164,7 +162,8 @@ int main(){
 #else
 int main(int argc, char* argv[argc]) {
   if(argc!=3){
-    fprintf(stderr, "Usage: %s <SOURCE_DIR> <TARGET_DIR> <START_INDEX>\n");
+    fprintf(stderr, "Usage: %s <SOURCE_DIR> <TARGET_DIR> <START_INDEX>\n", 
+      argv[0]);
     exit(EXIT_FAILURE);
   }
   generate_numbered_files(argv[1], argv[2], 1);
