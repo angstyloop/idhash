@@ -167,23 +167,23 @@ int main(){
 
   // Create test target directory (should not exist yet, thanks to uuid).
   if(mkdir(target_dir_name, 0777)){
-    fprintf(stderr, "Failed to create directory %s.", target_dir_name);
-    exit(EXIT_SUCCESS);
+    fprintf(stderr, "Failed to create directory %s.\n", target_dir_name);
+    exit(EXIT_FAILURE);
   }
 
   // Generate duplicates in target dir.
   generate_duplicates(source_dir_name, target_dir_name);
 
   // Form the expected names.
-  char exp_name_1_a[SZ_PATH]={0}, exp_name_1_b[SZ_PATH]={0},
-   exp_name_2_a[SZ_PATH]={0}, exp_name_2_b[SZ_PATH]={0};
-  join_dir_to_name(exp_name_1_a, target_dir_name, "test-file-1_a.txt");
-  join_dir_to_name(exp_name_1_b, target_dir_name, "test-file-1_b.txt");
-  join_dir_to_name(exp_name_2_a, target_dir_name, "test-file-2_a.txt");
-  join_dir_to_name(exp_name_2_b, target_dir_name, "test-file-2_b.txt");
+  char exp_path_1_a[SZ_PATH]={0}, exp_path_1_b[SZ_PATH]={0},
+   exp_path_2_a[SZ_PATH]={0}, exp_path_2_b[SZ_PATH]={0};
+  join_dir_to_name(exp_path_1_a, target_dir_name, "test-file-1_a.txt");
+  join_dir_to_name(exp_path_1_b, target_dir_name, "test-file-1_b.txt");
+  join_dir_to_name(exp_path_2_a, target_dir_name, "test-file-2_a.txt");
+  join_dir_to_name(exp_path_2_b, target_dir_name, "test-file-2_b.txt");
 
   // Assert the files in target dir were created with the expected names.
-  assert((f1 = fopen(exp_name_1_a, "r")) && (f2 = fopen(exp_name_1_b, "r")));
+  assert((f1 = fopen(exp_path_1_a, "r")) && (f2 = fopen(exp_path_1_b, "r")));
   if(f1){
     fclose(f1); 
     f1=NULL;
@@ -192,7 +192,7 @@ int main(){
     fclose(f2);
     f2=NULL;
   }
-  assert((f2 = fopen(exp_name_2_a, "r")) && (f2 = fopen(exp_name_2_b, "r")));
+  assert((f2 = fopen(exp_path_2_a, "r")) && (f2 = fopen(exp_path_2_b, "r")));
   if(f1){
     fclose(f1); 
     f1=NULL;
@@ -203,8 +203,8 @@ int main(){
   }
 
   // Clean up.
-  if(remove(exp_name_1_a) || remove(exp_name_1_b) || remove(exp_name_2_a)
-    || remove(exp_name_2_b) || remove(target_dir_name) || remove(test_path_1)
+  if(remove(exp_path_1_a) || remove(exp_path_1_b) || remove(exp_path_2_a)
+    || remove(exp_path_2_b) || remove(target_dir_name) || remove(test_path_1)
     || remove(test_path_2) || remove(source_dir_name)){
     fprintf(stderr, "Failed to delete temporary files and directories.");
     exit(EXIT_FAILURE);

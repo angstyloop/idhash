@@ -121,6 +121,63 @@ int main(){
     exit(EXIT_FAILURE);
   } 
   char test_path_1[SZ_PATH], file_name_2[SZ_PATH];
+  join_dir_to_name(test_path_1, source_dir_name, "test-file-1.txt");
+  join_dir_to_name(test_path_2, source_dir_name, "test-file-2.txt");
+
+  FILE* f1=NULL, f2=NULL;
+  if((f1 = fopen(test_path_1, "w")) && (f2 = fopen(test_path_2, "w"))){
+    fprintf(f1, "Hello, world!");
+    fprintf(f2, "Hello, place!");
+  } 
+  if(f1){
+    fclose(f1);
+    f1=NULL;
+  }
+  if(f2){
+    fclose(f2);
+    f2=NULL;
+  }
+  char target_dir_name[SZ_NAME]={0};
+  {
+    char out[UUID_STR_LEN]={0};
+    snprintf(target_dir_name, SZ_NAME, "test-dir-%s", gen_uuid_str(out));
+  }
+  if(mkdir(target_dir_name, 0777)){
+    fprintf(stderr, "Failed to created directory %s.\n", target_dir_name);
+    return(EXIT_FAILURE);
+  } 
+  generate_duplicates(source_dir_name, target_dir_name);
+  char exp_path_1_a[SZ_PATH], exp_path_1_b[SZ_PATH], exp_path_2_a[SZ_PATH],
+    exp_path_2_b[SZ_PATH];
+  join_dir_to_name(exp_path_1_a, target_dir_name, "test-file-1_a.txt");
+  join_dir_to_name(exp_path_1_b, target_dir_name, "test-file-1_b.txt");
+  join_dir_to_name(exp_path_2_a, target_dir_name, "test-file-2_a.txt");
+  join_dir_to_name(exp_path_2_b, target_dir_name, "test-file-2_b.txt");
+  assert((f1 = fopen(exp_path_1_a, "r")) && (f2 = fopen(exp_path_1_b, "r")));
+  if(f1){
+    fclose(f2)
+    f1=NULL;
+  }
+  if(f2){
+    fclose(f2);
+    f2=NULL;
+  }
+  assert((f1 = fopen(exp_path_2_a, "r")) && (f2 = fopen(exp_path_2_b, "r")));
+  if(f1){
+    fclose(f2)
+    f1=NULL;
+  }
+  if(f2){
+    fclose(f2);
+    f2=NULL;
+  }
+  if(remove(exp_path_1_a) || remove(exp_path_1_b) || remove(exp_path_2_a)
+    || remove(exp_path_2_b) || remove(target_dir_name) || remove(test_path_1)
+    || remove(test_path_2) || remove(source_dir_name)){
+    fprintf(stderr, "Failed to delete temporary files and directories.");
+    return(EXIT_FAILURE);
+  } 
+  return EXIT_SUCCESS;
 }
 #else
 int main(int argc, char* argv[]){
