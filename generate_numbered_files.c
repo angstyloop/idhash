@@ -160,7 +160,7 @@ int main(){
 }
 #else
 int main(int argc, char* argv[argc]) {
-  if(argc!=3){
+  if(argc!=4){
     fprintf(stderr, "Usage: %s <SOURCE_DIR> <TARGET_DIR> <START_INDEX>\n", 
       argv[0]);
     exit(EXIT_FAILURE);

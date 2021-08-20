@@ -398,7 +398,7 @@ int main(){
   } 
   return EXIT_SUCCESS;
 }
-#else
+#elif defined(TEST_GENERATE_DUPLICATES)
 int main(int argc, char* argv[]){
   if(argc!=3 || !*argv[1] || !*argv[2]){
     fprintf(stderr, "Usage: %s <SOURCE_DIR> <TARGET_DIR>", argv[0]);
