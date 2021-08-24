@@ -28,8 +28,10 @@ void extract_matches_from_file(
   char* match;
   while (-1<(nread = getline(&line, &len, in_fp)) ){
     match = extract_match(line, pattern);
-    fprintf(out_fp, "%s\n", match);
-    free(match);
+    if(match){
+      fprintf(out_fp, "%s\n", match);
+      free(match);
+    }
   }
   fclose(in_fp);
   fclose(out_fp);
