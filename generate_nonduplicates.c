@@ -8,7 +8,8 @@
  *
  *  COMPILE
  * 
- *  gcc generate_nonduplicates.c -o generate-nonduplicates -luuid
+ *  gcc  generate_nonduplicates.c -o generate-nonduplicates -luuid \
+ *  -DRUN_GENERATE_NONDUPLICATES
  *
  *
  *  USAGE
@@ -398,10 +399,10 @@ int main(){
   } 
   return EXIT_SUCCESS;
 }
-#elif defined(TEST_GENERATE_DUPLICATES)
+#elif defined(RUN_GENERATE_NONDUPLICATES)
 int main(int argc, char* argv[]){
   if(argc!=3 || !*argv[1] || !*argv[2]){
-    fprintf(stderr, "Usage: %s <SOURCE_DIR> <TARGET_DIR>", argv[0]);
+    fprintf(stderr, "Usage: %s <SOURCE_DIR> <TARGET_DIR>\n", argv[0]);
     exit(EXIT_FAILURE);
   } 
   generate_nonduplicates(argv[1], argv[2]);
