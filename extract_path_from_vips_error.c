@@ -5,14 +5,19 @@ gcc extract_path_from_vips_error.c -o test-extract-path-from-vips-error -DTEST_E
 #include "extract_match.c"
 
 char* extract_path_from_vips_error(char* error_str){
-  char* pattern = "\"[^/]+[/[^/]+]*\"";
-  if(strlen(pattern)>strlen(error_str)){
-    fprintf(stderr, "Pattern is longer than error string.\n    pattern=%s    " 
-      "error_str=%s\n", pattern, error_str);
-    exit(EXIT_FAILURE);
-  }
+  char* pattern = "\"[^/\" ]+(/[^/\" ]+)*\"";
+  if(strlen(pattern) > strlen(error_str))
+    return 0;
   // Set last quote to 0, and use memmove to remove first quote.
-  return extract_match(error_str, pattern);
+  char* match = extract_match(error_str, pattern);
+  if(match){
+    int n = strlen(match);
+    // Zero last quote.
+    match[n-1]=0;
+    // Overwrite first quote.
+    memmove(match, match+1, n); //don't forget newline
+  }
+  return match;
 }
 
 #ifdef TEST_EXTRACT_PATH_FROM_VIPS_ERROR
