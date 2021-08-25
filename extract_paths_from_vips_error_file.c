@@ -20,7 +20,7 @@ void extract_path_from_vips_error_file(char* in, char* out){
   char* line=0, * path=0;
   size_t n=0;
   ssize_t z=0;
-  while(-1<(z = getline(&line, &n, fin))){
+  while(-1 != (z = getline(&line, &n, fin))){
     if((path = extract_path_from_vips_error(line))){
       fprintf(fout, "%s\n", path);
       free(path);
