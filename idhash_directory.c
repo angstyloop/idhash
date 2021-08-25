@@ -11,8 +11,7 @@
  *
  * COMPILE
  * 
- * gcc -o idhash-directory -g -Wall idhash.h bit_array.h histogram.h \
- * idhash_directory.c `pkg-config vips --cflags --libs` -luuid
+gcc -o idhash-directory -g -Wall idhash.h bit_array.h histogram.h idhash_directory.c `pkg-config vips --cflags --libs` -luuid
  *
  * RUN
  *
