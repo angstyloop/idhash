@@ -12,7 +12,7 @@ there is no match. */
 #include <string.h>
 #include <assert.h>
 
-char* extract_match(char* source, char* pattern){
+char* extract_match(char* source, char const*const pattern){
   regex_t regex;
   regmatch_t groups[1];
   if(regcomp(&regex, pattern, REG_EXTENDED)  // nonzero if compile fails

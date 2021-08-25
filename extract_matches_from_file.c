@@ -5,7 +5,7 @@ gcc extract_matches_from_file.c -o test-extract-matches-from-file -DTEST_EXTRACT
 #include "extract_match.c"
 
 #ifndef SZ_PATH
-#define SZ_PATH 4096
+#  define SZ_PATH 4096
 #endif
 
 void extract_matches_from_file(
@@ -13,8 +13,8 @@ void extract_matches_from_file(
   char* in_path, 
   char* out_path)
 {
-  FILE* in_fp=0, out_fp=0;
-  if(!(in_fp = fopen(in_fname, "r"))){
+  FILE* in_fp=0, * out_fp=0;
+  if(!(in_fp = fopen(in_path, "r"))){
     fprintf(stderr, "Failed to open input file %s.", in_path);
     exit(EXIT_FAILURE);
   } 
@@ -22,11 +22,10 @@ void extract_matches_from_file(
     fprintf(stderr, "Failed to open output file %s.", out_path);
     exit(EXIT_FAILURE);
   } 
-  char* line=0;
+  char* line=0, * match=0;
   size_t len=0;
   ssize_t nread=0;
-  char* match;
-  while (-1<(nread = getline(&line, &len, in_fp)) ){
+  while (-1<(nread = getline(&line, &len, in_fp))){
     match = extract_match(line, pattern);
     if(match){
       fprintf(out_fp, "%s\n", match);
