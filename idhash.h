@@ -21,7 +21,7 @@
 #endif
 
 #ifndef SZ_PATH
-#define SZ_PATH 4096
+#  define SZ_PATH 4096
 #endif
 
 /* A result containing the x-direction difference hash, y-direction difference
@@ -29,7 +29,7 @@
  */
 typedef struct idhash_result idhash_result;
 struct idhash_result {
-  path[SZ_PATH];
+  char path[SZ_PATH];
   guint64 dx;
   guint64 dy;
   guint64 ix;
@@ -145,12 +145,11 @@ void idhash_pixels(
   pthread_join(thread_x, NULL);
   pthread_join(thread_y, NULL);
 
-  const idhash_result buf = {
-    hist_x.hash, 
-    hist_y.hash,
-    hist_x.importance,
-    hist_y.importance,
-  };
+  idhash_result buf={0};
+  buf.dx = hist_x.hash, 
+  buf.dy = hist_y.hash,
+  buf.ix = hist_x.importance,
+  buf.iy = hist_y.importance,
 
   memcpy(res, &buf, 4*sizeof(guint64));
 }
@@ -159,7 +158,7 @@ void idhash_pixels(
  * output.
  */
 void idhash_filepath(char filepath[static 1], idhash_result* res) {
-  strncpy(res->path, strlen(filepath), filepath);
+  strncpy(res->path, filepath, strlen(filepath));
 
   VipsImage *in;
   PixelRGB *pixels;

@@ -1,5 +1,5 @@
 /*
-gcc -g -Wall idhash_stats.c -o idhash-stats -DTEST_IDHASH_STATS
+gcc -g -Wall idhash_stats.c -o test-idhash-stats -DTEST_IDHASH_STATS `pkg-config vips --cflags --libs` -lm
 */
 
 #ifndef STDLIB_H
@@ -17,9 +17,9 @@ gcc -g -Wall idhash_stats.c -o idhash-stats -DTEST_IDHASH_STATS
 #  include <assert.h>
 #endif
 
-#ifndef CMATH_H
-#  define CMATH_H
-#  include <cmath.h>
+#ifndef MATH_H
+#  define MATH_H
+#  include <math.h>
 #endif
 
 #ifndef IDHASH_H
@@ -34,7 +34,7 @@ gcc -g -Wall idhash_stats.c -o idhash-stats -DTEST_IDHASH_STATS
 // Statistics for multiple runs.
 typedef struct idhash_stats idhash_stats;
 struct idhash_stats {
-  int N;
+  int ndata;
   int* data;
   char paths[2][SZ_PATH];
   double mean;
@@ -43,10 +43,10 @@ struct idhash_stats {
   double rel_std_dev;
 };
 
-idhash_stats* idhash_stats_create(int N){
-  idhash_stats* stats = calloc(N, sizeof(idhash_stats));
-  stats->N = N;
-  stats->data = calloc(N, sizeof(int));
+idhash_stats* idhash_stats_create(int ndata){
+  idhash_stats* stats = calloc(ndata, sizeof(idhash_stats));
+  stats->ndata = ndata;
+  stats->data = calloc(ndata, sizeof(int));
   return stats;
 }
 
@@ -62,20 +62,20 @@ idhash_stats* idhash_stats_init(
   idhash_result res_a,
   idhash_result res_b)
 {
-  strncpy(stats->paths[0], SZ_PATH, res_a.path);
-  strncpy(stats->paths[1], SZ_PATH, res_b.path);
+  strncpy(stats->paths[0], res_a.path, SZ_PATH);
+  strncpy(stats->paths[1], res_b.path, SZ_PATH);
   int sum=0;
-  for(int i=0; i<stats->N; ++i){
-    stats->data[i] = idhash_difference(res_a, res_b);
+  for(int i=0; i < stats->ndata; ++i){
+    stats->data[i] = idhash_dist(res_a, res_b);
     sum += stats->data[i];
   }
-  stats->mean = (double) sum / stats->N;
+  stats->mean = (double) sum / stats->ndata;
   double sum_of_square_residuals=0;
-  for(int i=0; i<stats->N; ++i){
+  for(int i=0; i < stats->ndata; ++i){
     const double r = stats->data[i] - stats->mean;
     sum_of_square_residuals += r*r;
   }
-  stats->variance = sum_of_square_residuals / N;
+  stats->variance = sum_of_square_residuals / stats->ndata;
   stats->std_dev = sqrt(stats->variance);
   stats->rel_std_dev = 100 * stats->std_dev / stats->mean;
   return stats;
@@ -85,29 +85,29 @@ void idhash_stats_print(idhash_stats* stats, FILE* f, int show_data){
   fprintf(f, "%s %s %f %f %f %f", stats->paths[0], stats->paths[1], 
     stats->mean, stats->variance, stats->std_dev, stats->rel_std_dev);
   if(show_data){
-    for(int j=0; j<stats->N; ++j){
+    for(int j=0; j < stats->ndata; ++j){
       fprintf(f, " %d", stats->data[j]);
     }
   }
   fprintf(f, "\n");
 }
 
-#ifndef TEST_IDHASH_STATS
+#ifdef TEST_IDHASH_STATS
+/*
+Compute the idhash distance between FILE_A and FILE_B at the command line ndata 
+times. Print statistics and data (the computed distances) to standard output.
+*/
 int main(int argc, char* argv[argc]){
   if(!(argc==4 && *argv[1] && *argv[2] && *argv[3])){
-    fprintf(stderr, "Usage: %s <FILE_A> <FILE_B> <DATA_FILE>\n", argv[0]);
+    fprintf(stderr, "Usage: %s <FILE_A> <FILE_B> <NDATA>\n", argv[0]);
     idhash_result res_a={0}, res_b={0};
     idhash_filepath(argv[1], &res_a);
     idhash_filepath(argv[2], &res_b);
-    const ndata = 10; // compute idhash distance 10 times, with statistics
+    int ndata = atoi(argv[3]);
+    assert(ndata > 0);
     idhash_stats* stats = idhash_stats_create(ndata);
     idhash_stats_init(stats, res_a, res_b);
-    FILE* f=0;
-    if(!(f = fopen(argv[3], "w"))){
-      fprintf(stderr, "Failed to open data file %s.\n", argv[3]);
-      exit(EXIT_FAILURE);
-    } 
-    idhash_stats_print(stats, f, 0);
+    idhash_stats_print(stats, stdout, 1);
     idhash_stats_destroy(stats);
     exit(EXIT_SUCCESS);
   } 
