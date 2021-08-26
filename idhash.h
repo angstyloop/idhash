@@ -1,20 +1,27 @@
-#ifndef GUARD_VIPS
-#define GUARD_VIPS
-#include <vips/vips.h>
+#ifndef VIPS_H
+#  define VIPS_H
+#  include <vips/vips.h>
 #endif
 
-#include <inttypes.h>
-
-#ifndef GUARD_BIT_ARRAY
-#define GUARD_BIT_ARRAY
-#include "bit_array.h"
+#ifndef INTTYPES_H
+#  define INTTYPES_H
+#  include <inttypes.h>
 #endif
 
-#ifndef GUARD_HISTOGRAM
-#define GUARD_HISTOGRAM
-#include "histogram.h"
-static void* histogram_thread_x(void* _arg);
-static void* histogram_thread_y(void* _arg);
+#ifndef BIT_ARRAY_H
+#  define BIT_ARRAY_H
+#  include "bit_array.h"
+#endif
+
+#ifndef HISTOGRAM_H
+#  define HISTOGRAM_H
+#  include "histogram.h"
+   static void* histogram_thread_x(void* _arg);
+   static void* histogram_thread_y(void* _arg);
+#endif
+
+#ifndef SZ_PATH
+#define SZ_PATH 4096
 #endif
 
 /* A result containing the x-direction difference hash, y-direction difference
@@ -22,6 +29,7 @@ static void* histogram_thread_y(void* _arg);
  */
 typedef struct idhash_result idhash_result;
 struct idhash_result {
+  path[SZ_PATH];
   guint64 dx;
   guint64 dy;
   guint64 ix;
@@ -150,10 +158,12 @@ void idhash_pixels(
 /* Write the the IDHash Components for the image at @filepath to standard 
  * output.
  */
-void idhash_filepath(char* filepath, idhash_result* res) {
-    VipsImage *in;
-    PixelRGB *pixels;
-    VipsImage *out;
+void idhash_filepath(char filepath[static 1], idhash_result* res) {
+  strncpy(res->path, strlen(filepath), filepath);
+
+  VipsImage *in;
+  PixelRGB *pixels;
+  VipsImage *out;
 
   /* Open the file, scaling down to a 8x8 image for IDHash. Note that
    * JPEG shrink-on-load is used by vipsthumbnail if the source is a

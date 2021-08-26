@@ -49,6 +49,11 @@ gcc -o idhash-directory -g -Wall idhash.h bit_array.h histogram.h idhash_directo
 #  include <unistd.h>
 #endif
 
+#ifndef CMATH_H
+#  define CMATH_H
+#  include <cmath.h>
+#endif
+
 #ifndef IDHASH_H
 #  define IDHASH_H
 #  include "idhash.h"
@@ -58,22 +63,33 @@ gcc -o idhash-directory -g -Wall idhash.h bit_array.h histogram.h idhash_directo
 #  define SZ_PATH 4096
 #endif
 
-void idhash_directory(char dir[SZ_PATH], char dat[SZ_PATH], int n){
+/*
+Compute the idhash between pair of @nfiles image files in @dir. Repeat the 
+computation @ndata times for each pair, and print statistics such as mean
+and standard deviation to @dat.
+*/
+void idhash_directory(char dir[static 1], char dat[static 1],
+  int nfiles, int ndata)
+{
   char path_a[SZ_PATH]={0}, path_b[SZ_PATH]={0};
   FILE* f_dat; 
   if(!(f_dat = fopen(dat, "w"))){
     fprintf(stderr, "Failed to open data file %s\n", dat);
     exit(EXIT_FAILURE);
   } 
-  for(int i=1; i<n+1; ++i){
+  idhash_stats* stats = idhash_stats_create(ndata);
+  for(int i=1; i<nfiles+1; ++i){
     char* slash = dir[strlen(dir)-1] == '/' ? "" : "/";
     snprintf(path_a, SZ_PATH, "%s%s%d_a.jpg", dir, slash, i);
     snprintf(path_b, SZ_PATH, "%s%s%d_b.jpg", dir, slash, i);
     idhash_result res_a={0}, res_b={0};
     idhash_filepath(path_a, &res_a);
     idhash_filepath(path_b, &res_b);
-    fprintf(f_dat, "%s %s %d\n", path_a, path_b, idhash_dist(res_a, res_b));
+    idhash_stats_init(stats, res_a, res_b);
+    // print stats to file
+    idhash_stats_print(stats, f_dat, 0); // 0 => don't print data
   }
+  idhash_stats_destroy(stats);
   fclose(f_dat);
 }
 
