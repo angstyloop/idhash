@@ -1,5 +1,5 @@
 /*
-gcc -g -Wall idhash_stats.c -o test-idhash-stats -DTEST_IDHASH_STATS `pkg-config vips --cflags --libs` -lm
+gcc -g -Wall idhash_stats.c -o test-idhash-stats -DTEST_IDHASH_STATS `pkg-config vips --libs` -lm
 */
 
 #ifndef STDLIB_H
@@ -35,7 +35,7 @@ gcc -g -Wall idhash_stats.c -o test-idhash-stats -DTEST_IDHASH_STATS `pkg-config
 typedef struct idhash_stats idhash_stats;
 struct idhash_stats {
   int ndata;
-  int* data;
+  guint* data;
   char paths[2][SZ_PATH];
   double mean;
   double variance;
@@ -46,7 +46,8 @@ struct idhash_stats {
 idhash_stats* idhash_stats_create(int ndata){
   idhash_stats* stats = calloc(ndata, sizeof(idhash_stats));
   stats->ndata = ndata;
-  stats->data = calloc(ndata, sizeof(int));
+  stats->data = calloc(ndata, sizeof(guint));
+  assert(stats->ndata>0);
   return stats;
 }
 
@@ -62,14 +63,17 @@ idhash_stats* idhash_stats_init(
   idhash_result res_a,
   idhash_result res_b)
 {
+  assert(stats->ndata);
+  assert(res_a.path && *res_a.path);
+  assert(res_b.path && *res_b.path);
   strncpy(stats->paths[0], res_a.path, SZ_PATH);
   strncpy(stats->paths[1], res_b.path, SZ_PATH);
-  int sum=0;
+  guint sum=0;
   for(int i=0; i < stats->ndata; ++i){
     stats->data[i] = idhash_dist(res_a, res_b);
     sum += stats->data[i];
   }
-  stats->mean = (double) sum / stats->ndata;
+  stats->mean = (double) sum / (double) stats->ndata;
   double sum_of_square_residuals=0;
   for(int i=0; i < stats->ndata; ++i){
     const double r = stats->data[i] - stats->mean;
@@ -100,16 +104,19 @@ times. Print statistics and data (the computed distances) to standard output.
 int main(int argc, char* argv[argc]){
   if(!(argc==4 && *argv[1] && *argv[2] && *argv[3])){
     fprintf(stderr, "Usage: %s <FILE_A> <FILE_B> <NDATA>\n", argv[0]);
-    idhash_result res_a={0}, res_b={0};
-    idhash_filepath(argv[1], &res_a);
-    idhash_filepath(argv[2], &res_b);
-    int ndata = atoi(argv[3]);
-    assert(ndata > 0);
-    idhash_stats* stats = idhash_stats_create(ndata);
-    idhash_stats_init(stats, res_a, res_b);
-    idhash_stats_print(stats, stdout, 1);
-    idhash_stats_destroy(stats);
-    exit(EXIT_SUCCESS);
+    exit(EXIT_FAILURE);
   } 
+  idhash_result res_a={0}, res_b={0};
+  idhash_filepath(argv[1], &res_a);
+  idhash_filepath(argv[2], &res_b);
+  assert(strlen(res_a.path));
+  assert(strlen(res_b.path));
+  int ndata = atoi(argv[3]);
+  assert(ndata > 0);
+  idhash_stats* stats = idhash_stats_create(ndata);
+  idhash_stats_init(stats, res_a, res_b);
+  idhash_stats_print(stats, stdout, 1);
+  idhash_stats_destroy(stats);
+  exit(EXIT_SUCCESS);
 }
 #endif

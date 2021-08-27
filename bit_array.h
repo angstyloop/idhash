@@ -6,13 +6,13 @@
  * and distance hash. 
  */
 
-#ifndef GUARD_GLIB
-#define GUARD_GLIB
+#ifndef GLIB_H
+#define GLIB_H
 #include <glib-2.0/glib.h>
 #endif
 
-#ifndef GUARD_STDIO
-#define GUARD_STDIO
+#ifndef STDIO_H
+#define STDIO_H
 #include <stdio.h>
 #endif
 

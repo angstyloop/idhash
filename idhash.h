@@ -145,19 +145,17 @@ void idhash_pixels(
   pthread_join(thread_x, NULL);
   pthread_join(thread_y, NULL);
 
-  idhash_result buf={0};
-  buf.dx = hist_x.hash, 
-  buf.dy = hist_y.hash,
-  buf.ix = hist_x.importance,
-  buf.iy = hist_y.importance,
-
-  memcpy(res, &buf, 4*sizeof(guint64));
+  res->dx = hist_x.hash;
+  res->dy = hist_y.hash;
+  res->ix = hist_x.importance;
+  res->iy = hist_y.importance;
 }
 
 /* Write the the IDHash Components for the image at @filepath to standard 
  * output.
  */
 void idhash_filepath(char filepath[static 1], idhash_result* res) {
+  assert(filepath);
   strncpy(res->path, filepath, strlen(filepath));
 
   VipsImage *in;
