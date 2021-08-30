@@ -97,9 +97,11 @@ void idhash_directory(char dir[static 1], char dat[static 1],
 
 int main(int argc, char* argv[argc]){
   if(!(argc==5 && *argv[1] && *argv[2] && *argv[3] && *argv[4])){
-    fprintf(stderr, "Usage: %s <TARGET_DIR> <DATA_FILE> <N_MAX>\n", argv[0]);
+    fprintf(stderr, "Usage: %s <TARGET_DIR> <DATA_FILE> <N_MAX> <N_DATA>\n", argv[0]);
     exit(EXIT_FAILURE);
   } 
+  if(VIPS_INIT(argv[0]))
+    vips_error_exit(NULL);
   idhash_directory(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]));
   return EXIT_SUCCESS;
 }

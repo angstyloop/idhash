@@ -1,5 +1,5 @@
 /*
-gcc -g -Wall idhash_stats.c -o test-idhash-stats -DTEST_IDHASH_STATS `pkg-config vips --libs` -lm
+gcc -g -Wall idhash_stats.c -o test-idhash-stats -DTEST_IDHASH_STATS `pkg-config vips --libs --cflags` -lm
 */
 
 #ifndef STDLIB_H
@@ -25,11 +25,6 @@ gcc -g -Wall idhash_stats.c -o test-idhash-stats -DTEST_IDHASH_STATS `pkg-config
 #ifndef IDHASH_H
 #  define IDHASH_H
 #  include "idhash.h"
-#endif
-
-#ifndef IDHASH_PROCESS_H
-#  define IDHASH_PROCESS_H
-#  include "idhash_process.c"
 #endif
 
 #ifndef SZ_PATH
@@ -71,11 +66,11 @@ idhash_stats* idhash_stats_init(
   strncpy(stats->paths[0], path_a, SZ_PATH);
   strncpy(stats->paths[1], path_b, SZ_PATH);
   guint sum=0;
+  idhash_result res_a={0}, res_b={0};
   for(int i=0; i < stats->ndata; ++i){
-    char* outbuf=0, * strtoul_buf=0;
-    size_t n=0;
-    idhash_process(&outbuf, &n, path_a, path_b);
-    stats->data[i] = strtoul(outbuf, &strtoul_buf, 10);
+    idhash_filepath(path_a, &res_a);
+    idhash_filepath(path_b, &res_b);
+    stats->data[i] = idhash_dist(res_a, res_b);
     sum += stats->data[i];
   }
   stats->mean = (double) sum / (double) stats->ndata;
@@ -111,15 +106,10 @@ int main(int argc, char* argv[argc]){
     fprintf(stderr, "Usage: %s <FILE_A> <FILE_B> <NDATA>\n", argv[0]);
     exit(EXIT_FAILURE);
   } 
-  idhash_result res_a={0}, res_b={0};
-  idhash_filepath(argv[1], &res_a);
-  idhash_filepath(argv[2], &res_b);
-  assert(strlen(res_a.path));
-  assert(strlen(res_b.path));
   int ndata = atoi(argv[3]);
   assert(ndata > 0);
   idhash_stats* stats = idhash_stats_create(ndata);
-  idhash_stats_init(stats, res_a, res_b);
+  idhash_stats_init(stats, argv[1], argv[2]);
   idhash_stats_print(stats, stdout, 1);
   idhash_stats_destroy(stats);
   exit(EXIT_SUCCESS);
