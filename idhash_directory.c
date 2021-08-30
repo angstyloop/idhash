@@ -11,11 +11,11 @@
  *
  * COMPILE
  * 
-gcc -o idhash-directory -g -Wall idhash.h bit_array.h histogram.h idhash_directory.c `pkg-config vips --cflags --libs` -luuid
+gcc -o idhash-directory -g -Wall idhash.h bit_array.h histogram.h idhash_directory.c `pkg-config vips --cflags --libs` -luuid -lm
  *
  * RUN
  *
- * ./idhash-directory <TARGET_DIR> <DATA_FILE> <N_MAX>
+ * ./idhash-directory <TARGET_DIR> <DATA_FILE> <N_FILES> <N_DATA>
  *
  */
 
@@ -51,12 +51,17 @@ gcc -o idhash-directory -g -Wall idhash.h bit_array.h histogram.h idhash_directo
 
 #ifndef CMATH_H
 #  define CMATH_H
-#  include <cmath.h>
+#  include <math.h>
 #endif
 
 #ifndef IDHASH_H
 #  define IDHASH_H
 #  include "idhash.h"
+#endif
+
+#ifndef IDHASH_STATS_H
+#  define IDHASH_STATS_H
+#  include "idhash_stats.c"
 #endif
 
 #ifndef SZ_PATH
@@ -82,10 +87,7 @@ void idhash_directory(char dir[static 1], char dat[static 1],
     char* slash = dir[strlen(dir)-1] == '/' ? "" : "/";
     snprintf(path_a, SZ_PATH, "%s%s%d_a.jpg", dir, slash, i);
     snprintf(path_b, SZ_PATH, "%s%s%d_b.jpg", dir, slash, i);
-    idhash_result res_a={0}, res_b={0};
-    idhash_filepath(path_a, &res_a);
-    idhash_filepath(path_b, &res_b);
-    idhash_stats_init(stats, res_a, res_b);
+    idhash_stats_init(stats, path_a, path_b);
     // print stats to file
     idhash_stats_print(stats, f_dat, 0); // 0 => don't print data
   }
@@ -94,11 +96,11 @@ void idhash_directory(char dir[static 1], char dat[static 1],
 }
 
 int main(int argc, char* argv[argc]){
-  if(!(argc==4 && *argv[1] && *argv[2] && *argv[3])){
+  if(!(argc==5 && *argv[1] && *argv[2] && *argv[3] && *argv[4])){
     fprintf(stderr, "Usage: %s <TARGET_DIR> <DATA_FILE> <N_MAX>\n", argv[0]);
     exit(EXIT_FAILURE);
   } 
-  idhash_directory(argv[1], argv[2], atoi(argv[3]));
+  idhash_directory(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]));
   return EXIT_SUCCESS;
 }
 

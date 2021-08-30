@@ -57,23 +57,20 @@ void readto(char** poutbuf, size_t* pn, int fd) {
   if (!*pn || *pn < SZ_BUF) *pn = SZ_BUF;
   if (!*poutbuf) *poutbuf = calloc(*pn, 1);
   size_t ntotal=0;
-  for(size_t z=0, d=0; z=read(fd, readbuf, SZ_BUF); d+=z){
+  for(size_t z=0, d=0; (z=read(fd, readbuf, SZ_BUF)); d+=z){
     if(-1==z) error("read");
     // if the size at @pn isn't large enough for the input so far and an
     // end '\0', try to realloc.
-    if(*pn <= ntotal += z){
+    if(*pn <= (ntotal += z)){
       // per C99, don't create an object that exceeds SIZE_MAX.
       if(SIZE_MAX/2 >= ntotal) error("input too large");
-      // make a copy of the old pointer, in case realloc triggers ENOMEM
-      char* t = *poutbuf;
-      // double the size of the output buffer
-      if(!(t = realloc(*poutbuf, *pn = 2 * ntotal))){
-        //if there was more work to be done, this would need to be freed
-        //free(*poutbuf);
+      // make a copy of the old pointer, in case realloc triggers ENOMEM,
+      // double the size of the output buffer.
+        //if there was more work to be done, *poutbuf would need to be freed,
         // but here ENOMEM results in an exit (as it probably always should?)
+      if(!(*poutbuf = realloc(*poutbuf, *pn = 2 * ntotal))){
         error("realloc");
       }
-      *poutbuf = t;
     }
     memcpy(*poutbuf + d, readbuf, z);
   }
@@ -119,8 +116,8 @@ void idhash_process(
     // close the write end of the parent's copy of the child output pipe
     close(out[1]);
 
-    // collect child process data output into the output buffer at @preadbuf
-    readto(preadbuf, pn, fd);
+    // collect child process data output into the output buffer at @poutbuf
+    readto(poutbuf, pn, out[0]);
 
     // no more reading. close the read end of the child output pipe. all ends 
     // of the parent's copy of the child output pipe are closed now.
@@ -145,20 +142,26 @@ int main(int argc, char* argv[argc]){
     fprintf(stderr, "Usage: %s <IMAGE_A> <IMAGE_B>\n", argv[0]);
     exit(EXIT_FAILURE);
   } 
-  char* outbuf=0;
-  size_t n=0;
+  char* outbuf;
+  size_t n;
 
+  outbuf=0;
+  n=0;
   idhash_process(&outbuf, &n, argv[1], argv[2]);
   printf("%s", outbuf);
-  if(outbuf) free(outbuf);
+  free(outbuf);
 
+  outbuf=0;
+  n=0;
   idhash_process(&outbuf, &n, argv[1], argv[2]);
   printf("%s", outbuf);
-  if(outbuf) free(outbuf);
+  free(outbuf);
 
+  outbuf=0;
+  n=0;
   idhash_process(&outbuf, &n, argv[1], argv[2]);
   printf("%s", outbuf);
-  if(outbuf) free(outbuf);
+  free(outbuf);
 
   return EXIT_SUCCESS;
 }

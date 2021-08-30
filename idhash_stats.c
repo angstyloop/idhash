@@ -27,6 +27,11 @@ gcc -g -Wall idhash_stats.c -o test-idhash-stats -DTEST_IDHASH_STATS `pkg-config
 #  include "idhash.h"
 #endif
 
+#ifndef IDHASH_PROCESS_H
+#  define IDHASH_PROCESS_H
+#  include "idhash_process.c"
+#endif
+
 #ifndef SZ_PATH
 #  define SZ_PATH 4096
 #endif
@@ -60,17 +65,17 @@ void idhash_stats_destroy(idhash_stats* stats){
 between two images.*/
 idhash_stats* idhash_stats_init(
   idhash_stats* stats,
-  idhash_result res_a,
-  idhash_result res_b)
+  char path_a[static 1],
+  char path_b[static 1])
 {
-  assert(stats->ndata);
-  assert(res_a.path && *res_a.path);
-  assert(res_b.path && *res_b.path);
-  strncpy(stats->paths[0], res_a.path, SZ_PATH);
-  strncpy(stats->paths[1], res_b.path, SZ_PATH);
+  strncpy(stats->paths[0], path_a, SZ_PATH);
+  strncpy(stats->paths[1], path_b, SZ_PATH);
   guint sum=0;
   for(int i=0; i < stats->ndata; ++i){
-    stats->data[i] = idhash_dist(res_a, res_b);
+    char* outbuf=0, * strtoul_buf=0;
+    size_t n=0;
+    idhash_process(&outbuf, &n, path_a, path_b);
+    stats->data[i] = strtoul(outbuf, &strtoul_buf, 10);
     sum += stats->data[i];
   }
   stats->mean = (double) sum / (double) stats->ndata;

@@ -155,7 +155,6 @@ void idhash_pixels(
  * output.
  */
 void idhash_filepath(char filepath[static 1], idhash_result* res) {
-  assert(filepath);
   strncpy(res->path, filepath, strlen(filepath));
 
   VipsImage *in;
