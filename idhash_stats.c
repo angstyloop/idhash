@@ -101,6 +101,62 @@ void idhash_stats_print(idhash_stats* stats, FILE* fp, int show_data){
   fprintf(fp, "\n");
 }
 
+static void nullcheck(char p[static 1]){
+  if(!*p){
+    fprintf(stderr, "Null byte encountered early.\n");
+    exit(EXIT_FAILURE);
+  } 
+}
+
+/*
+Parse all the stuff into the thing.
+*/
+
+void idhash_stats_parse_line(idhash_stats* stats, char line[static 1]){
+  nullcheck(line);
+
+  char* p=0, * q=line;
+
+  for(p=q; isspace(*p); ++p);
+  nullcheck(p);
+  for(q=p; !isspace(*q); ++q);
+  nullcheck(q);
+  memcpy(stats->paths[0], p, q-p);
+
+  for(p=q; isspace(*p); ++p);
+  nullcheck(p);
+  for(q=p; !isspace(*q) ++q);
+  nullcheck(q);
+  memcpy(stats->paths[1], p, q-p);
+
+  for(p=q; isspace(*p); ++p);
+  nullcheck(p);
+  for(q=p; !isspace(*q) ++q);
+  nullcheck(q);
+  memcpy(stats->mean, p, q-p);
+
+  for(p=q; isspace(*p); ++p);
+  nullcheck(p);
+  for(q=p; !isspace(*q) ++q);
+  nullcheck(q);
+  memcpy(stats->variance, p, q-p);
+
+  for(p=q; isspace(*p); ++p);
+  nullcheck(p);
+  for(q=p; !isspace(*q) ++q);
+  nullcheck(q);
+  memcpy(stats->std_dev, p, q-p);
+
+  for(p=q; isspace(*p); ++p);
+  nullcheck(p);
+  for(q=p; !isspace(*q) ++q);
+  memcpy(stats->rel_std_dev, p, q-p);
+}
+
+void idhash_stats_parse_file(FILE* fp){
+  // iterate through lines, calling parse_line
+}
+
 #ifdef TEST_IDHASH_STATS
 /*
 Compute the idhash distance between FILE_A and FILE_B at the command line ndata 
