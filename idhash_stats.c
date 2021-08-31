@@ -85,15 +85,20 @@ idhash_stats* idhash_stats_init(
   return stats;
 }
 
-void idhash_stats_print(idhash_stats* stats, FILE* f, int show_data){
-  fprintf(f, "%s %s %f %f %f %f", stats->paths[0], stats->paths[1], 
+/* Print an idhash_stats object @stats as a row in the file at @fp. If show_data is true,
+the actual distance values from all the trials are appended to the end of each row. 
+*/
+#define IDHASH_STATS_HEADER "path_a path_b mean variance std_dev rel_std_dev"
+void idhash_stats_print(idhash_stats* stats, FILE* fp, int show_data){
+  fprintf(fp, "%s\n", IDHASH_STATS_HEADER);
+  fprintf(fp, "%s %s %f %f %f %f", stats->paths[0], stats->paths[1], 
     stats->mean, stats->variance, stats->std_dev, stats->rel_std_dev);
   if(show_data){
     for(int j=0; j < stats->ndata; ++j){
-      fprintf(f, " %d", stats->data[j]);
+      fprintf(fp, " %d", stats->data[j]);
     }
   }
-  fprintf(f, "\n");
+  fprintf(fp, "\n");
 }
 
 #ifdef TEST_IDHASH_STATS
