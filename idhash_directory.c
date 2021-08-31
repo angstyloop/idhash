@@ -1,5 +1,10 @@
 /* idhash_directory.c
  *
+ * todo: 
+ 1. modify to print # trials (@ndata) to data file.
+ 2. modify to print max/min distances for all trials for each row
+ *
+ *
  * Compute the idhash distance of every pair of image files in a directory,   
  * where the pairs follow the naming convention "i_a.jpg" / "i_b.jpg", i
  * an integer in [1, n]. Write the distances and names to a file @data, with 
