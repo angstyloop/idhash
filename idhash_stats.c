@@ -108,10 +108,10 @@ static void nullcheck(char p[static 1]){
   } 
 }
 
-/*
-Parse all the stuff into the thing.
+/* Parse @line - which is at least one character long, presumably the terminating null 
+byte - into @stats, an idhash_stats object, presumably created with idhash_stats_create,
+but not initialized with idhash_stats_init. Does not set idhash_stats::data, nor ::ndata.
 */
-
 void idhash_stats_parse_line(idhash_stats* stats, char line[static 1]){
   nullcheck(line);
 
@@ -153,7 +153,12 @@ void idhash_stats_parse_line(idhash_stats* stats, char line[static 1]){
   memcpy(stats->rel_std_dev, p, q-p);
 }
 
-void idhash_stats_parse_file(FILE* fp){
+/* Determine key features of a data file at @fp, produced by idhash_directory. 
+1. max/min values of the statistical quantities
+2. avg. values of the statistical quantities
+3. # lines
+*/
+void idhash_stats_process_data_file(FILE* fp){
   // iterate through lines, calling parse_line
 }
 
