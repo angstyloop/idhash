@@ -73,13 +73,13 @@ Compute the idhash between pair of @nfiles image files in @dir. Repeat the
 computation @ndata times for each pair, and print statistics such as mean
 and standard deviation to @dat.
 */
-void idhash_directory(char dir[static 1], char dat[static 1],
+void idhash_directory(char dir[static 1], char datafile[static 1],
   int nfiles, int ndata)
 {
   char path_a[SZ_PATH]={0}, path_b[SZ_PATH]={0};
-  FILE* f_dat; 
-  if(!(f_dat = fopen(dat, "w"))){
-    fprintf(stderr, "Failed to open data file %s\n", dat);
+  FILE* fp; 
+  if(!(fp = fopen(datafile, "w"))){
+    fprintf(stderr, "Failed to open data file %s\n", datafile);
     exit(EXIT_FAILURE);
   } 
   idhash_stats* stats = idhash_stats_create(ndata);
@@ -89,10 +89,10 @@ void idhash_directory(char dir[static 1], char dat[static 1],
     snprintf(path_b, SZ_PATH, "%s%s%d_b.jpg", dir, slash, i);
     idhash_stats_init(stats, path_a, path_b);
     // print stats to file
-    idhash_stats_print(stats, f_dat, 0); // 0 => don't print data
+    idhash_stats_print(stats, fp, 0); // 0 => don't print data
   }
   idhash_stats_destroy(stats);
-  fclose(f_dat);
+  fclose(fp);
 }
 
 int main(int argc, char* argv[argc]){
