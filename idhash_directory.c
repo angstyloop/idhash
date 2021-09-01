@@ -88,6 +88,8 @@ void idhash_directory(char dir[static 1], char datafile[static 1],
     exit(EXIT_FAILURE);
   } 
   idhash_stats* stats = idhash_stats_create(ndata);
+  fprintf(fp, "files: %d\ntrials: %d\n", nfiles, ndata);
+  idhash_stats_print_header(fp);
   for(int i=1; i<nfiles+1; ++i){
     char* slash = dir[strlen(dir)-1] == '/' ? "" : "/";
     snprintf(path_a, SZ_PATH, "%s%s%d_a.jpg", dir, slash, i);

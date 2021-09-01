@@ -27,6 +27,11 @@ gcc -g -Wall idhash_stats.c -o test-idhash-stats -DTEST_IDHASH_STATS `pkg-config
 #  include <ctype.h>
 #endif
 
+#ifndef FLOAT_H
+#  define FLOAT_H
+#  include <float.h>
+#endif
+
 #ifndef IDHASH_H
 #  define IDHASH_H
 #  include "idhash.h"
@@ -103,7 +108,6 @@ idhash_stats* idhash_stats_init(
 the actual distance values from all the trials are appended to the end of each row. 
 */
 void idhash_stats_print(idhash_stats* stats, FILE* fp, int show_data){
-////////////////////////////////////////////////////////////////////////////////
   fprintf(fp, "%s %s %u %u %.2f %.2f %.2f %.2f", 
     stats->paths[0], stats->paths[1], stats->min, stats->max, stats->mean, stats->variance, 
     stats->std_dev, stats->rel_std_dev);
@@ -123,11 +127,46 @@ void idhash_stats_print_header(FILE* fp){
 /* Exit if the null character '\0' is at @p (which is guaranteed to point to
 an allocated character).
 */
-static void nullcheck(char p[static 1]){
+static void null_check(char p[static 1]){
   if(!*p){
     fprintf(stderr, "Null byte encountered early.\n");
     exit(EXIT_FAILURE);
   } 
+}
+
+static void header_error(char* p){
+  fprintf(stderr, "malformed header\n");
+  exit(EXIT_FAILURE);
+}
+
+// 1 or more digits at the end of the line
+#define HEADER_VALUE_REG "[:digit:]+$"
+
+// Parse the header - currently just the number of files and number of 
+// trials.
+void idhash_stats_parse_header(
+  int* nfiles[static 1],
+  int* ndata[static 1],
+  FILE* fp)
+{
+  //parse number of files (@nfiles) by extracting regex match from 1st line
+  //  get 1st line
+  char* line=0, p=0;
+  size_t len=0;
+  ssize_t nread=0;
+
+  if(1 > (nread = getline(&line, &len, fp))
+    || ! (p = extract_match(line, HEADER_VALUE_REG))) header_error();
+  free(p);
+  *nfiles = strtoul(p, 0, 0);
+
+  //parse number of trials (@ndata) by extracting regex match from 2nd line
+  //  get 2nd line
+  if(1 > (nread = getline(&line, &len, fp))
+    || ! (p = extract_match(line, HEADER_VALUE_REG)) header_error();
+  *ndata = strtoul(p, 0, 0);
+  free(p);
+
 }
 
 /* Parse @line - which is at least one character long, presumably the 
@@ -136,52 +175,85 @@ created with idhash_stats_create, but not initialized with
 idhash_stats_init. Does not set idhash_stats::data, nor ::ndata.
 */
 void idhash_stats_parse_line(idhash_stats* stats, char line[static 1]){
-  nullcheck(line);
+  null_check(line);
 
   char* p=0, * q=line;
 
   for(p=q; isspace(*p); ++p);
-  nullcheck(p);
+  null_check(p);
   for(q=p; !isspace(*q); ++q);
-  nullcheck(q);
+  null_check(q);
   memcpy(stats->paths[0], p, q-p);
 
   for(p=q; isspace(*p); ++p);
-  nullcheck(p);
+  null_check(p);
   for(q=p; !isspace(*q); ++q);
-  nullcheck(q);
+  null_check(q);
   memcpy(stats->paths[1], p, q-p);
 
   stats->min = strtoul(p=q, &q, 10);
-  nullcheck(q);
+  null_check(q);
 
   stats->max = strtoul(p=q, &q, 10);
-  nullcheck(q);
+  null_check(q);
 
   stats->mean = strtod(p=q, &q);
-  nullcheck(q);
+  null_check(q);
 
   stats->variance = strtod(p=q, &q);
-  nullcheck(q);
+  null_check(q);
 
   stats->std_dev = strtod(p=q, &q);
-  nullcheck(q);
+  null_check(q);
 
   stats->rel_std_dev = strtod(p=q, 0);
 }
 
-/* Determine key features of a data file at @fp, produced by idhash_directory. 
-1. max/min values of the statistical quantities
-2. avg. values of the statistical quantities
-3. # lines
+/* Determine key features of a data file at @fp, produced by 
+idhash_directory, such  max/min values of the statistical quantities # 
+files, and # trials. Currently just finds the min and max means. These
+determine the range used to vary the threshold to produce the ROC curve.
 */
-void idhash_stats_process_data_file(FILE* fp){
-  //parse number of files (@nfiles) by extracting regex match from 1st line
-  //parse number of trials (@ndata) by extracting regex match from 2nd line
-  //skip header
-  //iterate through remaining lines, 
-  //  calling parse_line,
-  //  and doing something with the parsed stats
+void idhash_stats_process_data_file(guint* min, guint* max, FILE* fp){
+  int nfiles=0, ndata=0;
+  idhash_stats_parse_header(&nfiles, &ndata, fp);
+  char* line=0;
+  size_t len=0;
+  ssize_t nread=0;
+  idhash_stats stats={0}; // static is fine, since no data parsed
+
+  double lowest_mean = DBL_MAX, highest_mean=0;
+
+  while(-1<(nread = getline(&line, &len, fp))){
+    idhash_stats_parse_line(&stats, line);
+    if(lowest_mean > stats.mean) highest_mean = stats.mean;
+    else if(highest_mean < stats.mean) lowest_mean = stats.mean;
+  }
+
+  if(!(lowest_mean < DBL_MAX && highest_mean < DBL_MAX)){
+    fprintf(stderr, "mean exceeds DBL_MAX\n");
+    exit(EXIT_FAILURE);
+  } 
+
+  if(!(lowest_mean >= 0 && highest_mean >=0)){
+    fprintf(stderr, "mean is negative\n");
+    exit(EXIT_FAILURE);
+  } 
+
+  *min = (guint)(lowest_mean);//floor
+  *max = (guint)(highest_mean + 1);//ceil
+}
+
+/* For a given data file and threshold value of the idhash distance, 
+compute the false-negative ratio and true-negative ratio.
+*/
+void compute_roc_point(
+  double* fnr,
+  double* tnr,
+  FILE* fp,
+  guint threshold)
+{
+  //...
 }
 
 #ifdef TEST_IDHASH_STATS
