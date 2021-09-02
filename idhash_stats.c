@@ -55,8 +55,11 @@ struct idhash_stats {
   double rel_std_dev;
 };
 
+// Note idhash_stats objects are frequently allocated statically, without
+// data guint[] arrays.
+
 idhash_stats* idhash_stats_create(int ndata){
-  if(!ndata){
+  if(1>ndata){
     fprintf(stderr, "Error: @ndata must be a nonzero positive integer.\n");
     exit(EXIT_FAILURE);
   } 
@@ -83,11 +86,16 @@ idhash_stats* idhash_stats_init(
   strncpy(stats->paths[1], path_b, SZ_PATH);
   guint sum=0;
   stats->min = stats->data[0];
+  stats->max=0;
   idhash_result res_a={0}, res_b={0};
   for(int i=0; i < stats->ndata; ++i){
     idhash_filepath(path_a, &res_a);
     idhash_filepath(path_b, &res_b);
+      
+    // TODO collect timing info here
+
     stats->data[i] = idhash_dist(res_a, res_b);
+
     sum += stats->data[i];
     if(stats->max < stats->data[i]) stats->max = stats->data[i];
     else if(stats->min > stats->data[i] ) stats->min = stats->data[i];
@@ -100,17 +108,20 @@ idhash_stats* idhash_stats_init(
   }
   stats->variance = sum_of_square_residuals / stats->ndata;
   stats->std_dev = sqrt(stats->variance);
-  stats->rel_std_dev = 100 * stats->std_dev / stats->mean;
+  stats->rel_std_dev = stats->mean ? 
+    100 * stats->std_dev / stats->mean
+    : -1;
   return stats;
 }
 
-/* Print an idhash_stats object @stats as a row in the file at @fp. If show_data is true,
-the actual distance values from all the trials are appended to the end of each row. 
+/* Print an idhash_stats object @stats as a row in the file at @fp. If 
+show_data is true, the actual distance values from all the trials are 
+appended to the end of each row. 
 */
 void idhash_stats_print(idhash_stats* stats, FILE* fp, int show_data){
   fprintf(fp, "%s %s %u %u %.2f %.2f %.2f %.2f", 
-    stats->paths[0], stats->paths[1], stats->min, stats->max, stats->mean, stats->variance, 
-    stats->std_dev, stats->rel_std_dev);
+    stats->paths[0], stats->paths[1], stats->min, stats->max, stats->mean,
+    stats->variance, stats->std_dev, stats->rel_std_dev);
   if(show_data){
     for(int j=0; j < stats->ndata; ++j){
       fprintf(fp, " %u", stats->data[j]);
@@ -124,8 +135,7 @@ void idhash_stats_print_header(FILE* fp){
   fprintf(fp, "%s\n", IDHASH_STATS_HEADER);
 }
 
-/* Exit if the null character '\0' is at @p (which is guaranteed to point to
-an allocated character).
+/* Exit if the null character '\0' is at @p 
 */
 static void null_check(char p[static 1]){
   if(!*p){
@@ -134,38 +144,51 @@ static void null_check(char p[static 1]){
   } 
 }
 
-static void header_error(char* p){
-  fprintf(stderr, "malformed header\n");
+static void header_error(char* line){
+  if(line){
+    fprintf(stderr, "malformed header line:\n%s\n", line);
+    free(line);
+  }
   exit(EXIT_FAILURE);
 }
 
 // 1 or more digits at the end of the line
 #define HEADER_VALUE_REG "[:digit:]+$"
 
-// Parse the header - currently just the number of files and number of 
-// trials.
+// Parse the header, which is currently just the number of files and number 
+// of trials.
 void idhash_stats_parse_header(
   int* nfiles[static 1],
   int* ndata[static 1],
   FILE* fp)
 {
-  //parse number of files (@nfiles) by extracting regex match from 1st line
-  //  get 1st line
-  char* line=0, p=0;
-  size_t len=0;
-  ssize_t nread=0;
+  {
+    char* line=0, p=0;
+    size_t len=0;
+    ssize_t nread=0;
+    //parse number of files (@nfiles) by extracting regex match from 1st line
+    if(1>(nread = getline(&line, &len, fp))
+      || ! (p = extract_match(line, HEADER_VALUE_REG))){
+      header_error(line);
+    }
+    free(line);
+    *nfiles = strtoul(p, 0, 0);
+    free(p);
+  }
 
-  if(1 > (nread = getline(&line, &len, fp))
-    || ! (p = extract_match(line, HEADER_VALUE_REG))) header_error();
-  free(p);
-  *nfiles = strtoul(p, 0, 0);
-
-  //parse number of trials (@ndata) by extracting regex match from 2nd line
-  //  get 2nd line
-  if(1 > (nread = getline(&line, &len, fp))
-    || ! (p = extract_match(line, HEADER_VALUE_REG)) header_error();
-  *ndata = strtoul(p, 0, 0);
-  free(p);
+  {
+    char* line=0, p=0;
+    size_t len=0;
+    ssize_t nread=0;
+    //parse number of trials (@ndata) by extracting regex match from 2nd line
+    if(1>(nread = getline(&line, &len, fp))
+      || ! (p = extract_match(line, HEADER_VALUE_REG))){
+      header_error(line);
+    }
+    free(line);
+    *ndata = strtoul(p, 0, 0);
+    free(p); 
+  }
 
 }
 
@@ -220,14 +243,15 @@ void idhash_stats_process_data_file(guint* min, guint* max, FILE* fp){
   char* line=0;
   size_t len=0;
   ssize_t nread=0;
-  idhash_stats stats={0}; // static is fine, since no data parsed
+  idhash_stats stats={0}; // static alloc fine (data not parsed)
 
   double lowest_mean = DBL_MAX, highest_mean=0;
 
-  while(-1<(nread = getline(&line, &len, fp))){
+  while(0<(nread = getline(&line, &len, fp))){
     idhash_stats_parse_line(&stats, line);
     if(lowest_mean > stats.mean) highest_mean = stats.mean;
     else if(highest_mean < stats.mean) lowest_mean = stats.mean;
+    free(line);
   }
 
   if(!(lowest_mean < DBL_MAX && highest_mean < DBL_MAX)){
@@ -235,7 +259,7 @@ void idhash_stats_process_data_file(guint* min, guint* max, FILE* fp){
     exit(EXIT_FAILURE);
   } 
 
-  if(!(lowest_mean >= 0 && highest_mean >=0)){
+  if(!(lowest_mean >= 0 && highest_mean >= 0)){
     fprintf(stderr, "mean is negative\n");
     exit(EXIT_FAILURE);
   } 
@@ -245,15 +269,89 @@ void idhash_stats_process_data_file(guint* min, guint* max, FILE* fp){
 }
 
 /* For a given data file and threshold value of the idhash distance, 
-compute the false-negative ratio and true-negative ratio.
+compute the true and false positive rates
+
+TPN = matching_strategy_and_error_rates.txt
 */
-void compute_roc_point(
-  double* fnr,
-  double* tnr,
-  FILE* fp,
+void idhash_stats_compute_roc_curve_point(
+  double* fpr,
+  double* tpr,
+  FILE* file_dup,
+  FILE* file_nondup,
   guint threshold)
 {
-  //...
+  // counters for false/true positive/negative
+  int tp=0, fp=0, tn=0, fn=0;
+  {
+    char* line=0;
+    size_t n=0;
+    ssize_t z=0;
+    idhash_stats stats={0}; //no data, static alloc fine
+    // go through duplicates data file and count the true positives and false
+    // negatives
+    while(0<(z = getline(&line, &n, file_dup))){
+      idhash_stats_parse_line(&stats, line);
+
+      // duplicates classified as... 
+
+      // non-duplicates: false negative
+      if(stats.mean > threshold) ++fn;
+
+      // duplicates: true positive
+      else ++tp; 
+
+      free(line);
+    }
+  }
+  {
+    char* line=0;
+    size_t n=0;
+    ssize_t z=0;
+    idhash_stats stats={0};
+    // go through duplicates data file and count the true negatives and false
+    // positives
+    while(0<(z = getline(&line, &n, file_nondup))){
+      idhash_stats_parse_line(&stats, line);
+
+      // non-duplicates classified as...
+
+      // non-duplicates: true negative
+      if(stats.mean > threshold) ++tn;
+
+      // duplicates: false positive
+      else ++fp;
+
+      free(line);
+    }
+  }
+
+  // compute the true positive rate (y-axis of ROC curve)
+  *fpr = (fp + tn) ?  fp / (fp + tn) : -1;
+
+  // compute the false positive rate (x-axis of ROC curve)
+  *tpr = (tp + fn) ? tp / (tp + fn) : -1;
+}
+
+// Write to the file at @file_out the xy coordinates of points on the ROC
+// curve generated by the @range of threshold values. The right endpoint,
+// range[1], is not included, but the left endpoint is included - i.e. the
+// range is "half-open". Use the duplicates.dat file at @file_dup, and the 
+// non-duplicates.dat file at @file_nondup. 
+//
+// The output file is formatted for gnuplot. There are two columns: the 
+// first x values, the second y values.
+void idhash_stats_compute_roc_curve(
+  FILE* file_dup,
+  FILE* file_nondup,
+  FILE* file_out,
+  guint range[2])
+{ 
+  for(guint i=range[0]; i<range[1]; ++i){
+    double fpr=0, tpr=0;
+    idhash_stats_compute_roc_curve_point(&fpr, &tpr, file_dup, file_nondup, i);
+    fprintf(file_out, "# fpr tpr");
+    fprintf(file_out, "%u %u\n", fpr, tpr);
+  }
 }
 
 #ifdef TEST_IDHASH_STATS
