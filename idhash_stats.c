@@ -74,7 +74,7 @@ idhash_stats* idhash_stats_create(int ndata){
   idhash_stats* stats = calloc(ndata, sizeof(idhash_stats));
   stats->ndata = ndata;
   stats->data = calloc(ndata, sizeof(guint));
-  assert(stats->ndata>0);
+  assert(stats->ndata > 0);
   return stats;
 }
 
@@ -184,8 +184,8 @@ void idhash_stats_parse_header(
   int* ndata,
   FILE* fp)
 {
-  idhash_stats_parse_header_int(nfiles);
-  idhash_stats_parse_header_int(ndata);
+  idhash_stats_parse_header_int(nfiles, fp);
+  idhash_stats_parse_header_int(ndata, fp);
 }
 
 /* Parse @line - which is at least one character long, presumably the 
