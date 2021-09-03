@@ -40,6 +40,11 @@ TEST_IDHASH_STATS_PARSE_LINE
 #  include "idhash.h"
 #endif
 
+#ifndef EXTRACT_MATCH_H
+#  define EXTRACT_MATCH_H
+#  include "extract_match.c"
+#endif
+
 #ifndef SZ_PATH
 #  define SZ_PATH 4096
 #endif
@@ -158,41 +163,29 @@ static void header_error(char* line){
 // 1 or more digits at the end of the line
 #define HEADER_VALUE_REG "[:digit:]+$"
 
+void idhash_stats_parse_header_int(int* out, FILE* fp){
+  char* line=0, * p=0;
+  size_t len=0;
+  ssize_t nread=0;
+  //parse number of files (@nfiles) by extracting regex match from 1st line
+  if(1>(nread = getline(&line, &len, fp))
+    || ! (p = extract_match(line, HEADER_VALUE_REG))){
+    header_error(line);
+  }
+  free(line);
+  *out = strtoul(p, 0, 0);
+  free(p);
+}
+
 // Parse the header, which is currently just the number of files and number 
 // of trials.
 void idhash_stats_parse_header(
-  int* nfiles[static 1],
-  int* ndata[static 1],
+  int* nfiles,
+  int* ndata,
   FILE* fp)
 {
-  {
-    char* line=0, p=0;
-    size_t len=0;
-    ssize_t nread=0;
-    //parse number of files (@nfiles) by extracting regex match from 1st line
-    if(1>(nread = getline(&line, &len, fp))
-      || ! (p = extract_match(line, HEADER_VALUE_REG))){
-      header_error(line);
-    }
-    free(line);
-    *nfiles = strtoul(p, 0, 0);
-    free(p);
-  }
-
-  {
-    char* line=0, p=0;
-    size_t len=0;
-    ssize_t nread=0;
-    //parse number of trials (@ndata) by extracting regex match from 2nd line
-    if(1>(nread = getline(&line, &len, fp))
-      || ! (p = extract_match(line, HEADER_VALUE_REG))){
-      header_error(line);
-    }
-    free(line);
-    *ndata = strtoul(p, 0, 0);
-    free(p); 
-  }
-
+  idhash_stats_parse_header_int(nfiles);
+  idhash_stats_parse_header_int(ndata);
 }
 
 /* Parse @line - which is at least one character long, presumably the 
