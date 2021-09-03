@@ -47,7 +47,7 @@ struct roc_source {
 };
 
 roc_source* roc_source_create(){
-  roc_source source = calloc(1, sizeof(roc_source));
+  roc_source* source = calloc(1, sizeof(roc_source));
   return source;
 }
 
@@ -58,19 +58,19 @@ roc_source* roc_source_init(
 {
   const size_t ndup = strlen(dupname)+1;
   source->dupname = calloc(ndup, 1);
-  strncpy(source->dupname, dupname, nnondup);
+  strncpy(source->dupname, dupname, ndup);
 
   if(!(source->fp_dup = fopen(dupname, "r"))){
     fprintf(stderr, "Failed to open duplicates file: %s\n", dupname);
     exit(EXIT_FAILURE);
   } 
 
-  const size_t nnondup strlen(nondupname)+1;
+  const size_t nnondup = strlen(nondupname)+1;
   source->nondupname = calloc(nnondup, 1);
-  strncpy(source->nondupname, nondupname, nnondup)
+  strncpy(source->nondupname, nondupname, nnondup);
 
   if(!(source->fp_nondup = fopen(nondupname, "r"))){
-    fprintf(stderr, "Failed to open non-duplicates file:\n", nondupname);
+    fprintf(stderr, "Failed to open non-duplicates file: %s\n", nondupname);
     exit(EXIT_FAILURE);
   }  
 
@@ -78,10 +78,11 @@ roc_source* roc_source_init(
 }
 
 roc_source* roc_source_destroy(roc_source* source){
-  if(source->dupname) free(dupname);
-  if(source->nondupname) free(nondupname);
+  if(source->dupname) free(source->dupname);
+  if(source->nondupname) free(source->nondupname);
   fclose(source->fp_dup);
   fclose(source->fp_nondup);
+  free(source);
   return source;
 }
 
@@ -92,12 +93,12 @@ roc_source* roc_source_print(roc_source* psource){
   return psource;
 }
 
-#elif TEST_ROC_SOURCE
+#ifdef TEST_ROC_SOURCE
 int main(){
   roc_source* source = roc_source_create();
-  roc_source_init(&source, DEFAULT_DUP_FNAME, DEFAULT_NONDUP_FNAME);
-  roc_source_print(&source);
-  roc_source_destroy(&source);
+  roc_source_init(source, DEFAULT_DUP_FNAME, DEFAULT_NONDUP_FNAME);
+  roc_source_print(source);
+  roc_source_destroy(source);
   return EXIT_SUCCESS;
 }
 #endif
