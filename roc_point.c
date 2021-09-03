@@ -23,6 +23,11 @@ enemy).
 #  include "idhash_stats.c"
 #endif
 
+#ifndef ROC_SOURCE_H
+#  define ROC_SOURCE_H
+#  include "roc_source.c"
+#endif
+
 #ifndef DEFAULT_DUP_FNAME
 #  define DEFAULT_DUP_FNAME "duplicates.dat"
 #endif
@@ -35,12 +40,6 @@ enemy).
 #  define DEFAULT_PLOT_FNAME "roc.plot"
 #endif
 
-/* For small objects that simply hold data, there's no need for constructor
-and destructor methods. In this case, we can easily init with curly braces:
-
-roc_point point = {0, 0}
-
-*/
 typedef struct roc_point roc_point;
 struct roc_point {
   double fpr; //x-coordinate of a point in the ROC curve
@@ -52,7 +51,7 @@ struct roc_point {
 // of the roc_point at @point.
 void roc_point_parse_dup_file(
   roc_point* point,
-  roc_source source,
+  roc_source* source,
   guint threshold)
 {
   // Counts of true positives and false negatives.
@@ -63,25 +62,25 @@ void roc_point_parse_dup_file(
   char* line=0;
   size_t n=0;
   ssize_t z=0;
-  while(0<(z = getline(&line, &n, source.dup))){
+  while(0<(z = getline(&line, &n, source->fp_dup))){
     idhash_stats_parse_line(&stats, line);
     // If the duplicates are classified as... 
     // non-duplicates, it's a false negative.
     if(stats.mean > threshold) ++fn;
     // duplicates, it's a true positive.
     else ++tp; 
-    free(line);
   }
+  if(line) free(line);
 
   // Compute the true positive rate (x-axis of ROC curve).
-  point->tpr = (tp + fn) ? tp / (tp + fn) : -1;
+  point->tpr = (tp + fn) ? (double) tp / (tp + fn) : -1;
 }
 
 // Go through duplicates data file in @source and count the true negatives  
 // and false positives.
 void roc_point_parse_nondup_file(
   roc_point* point,
-  roc_source source,
+  roc_source* source,
   guint threshold)
 {
   // counters for true negatives and false positives.
@@ -93,18 +92,18 @@ void roc_point_parse_nondup_file(
   char* line=0;
   size_t n=0;
   ssize_t z=0;
-  while(0<(z = getline(&line, &n, source.nondup))){
+  while(0<(z = getline(&line, &n, source->fp_nondup))){
     idhash_stats_parse_line(&stats, line);
     // If the non-duplicates are classified as...
     // non-duplicates, it's a true negative
     if(stats.mean > threshold) ++tn;
     // duplicates, it's a false positive.
     else ++fp;
-    free(line);
   }
+  if(line) free(line);
 
   // Compute the false positive rate (y-axis of ROC curve)
-  point->fpr = (fp + tn) ?  fp / (fp + tn) : -1;
+  point->fpr = (fp + tn) ? (double) fp / (fp + tn) : -1;
 
 }
 
@@ -115,8 +114,8 @@ TPR = TP / (TP + FN)
 FPR = FP / (FP + TN)
 */
 roc_point* roc_point_init(
-  roc_point* ppoint
-  roc_source source,
+  roc_point* ppoint,
+  roc_source* source,
   guint threshold)
 {
   roc_point_parse_dup_file(ppoint, source, threshold);
@@ -133,12 +132,12 @@ roc_point* roc_point_init(
 // The output file is formatted for gnuplot. There are two columns: the 
 // first column lists x values, the second column lists y values.
 void idhash_roc_curve(
-  roc_source source,
+  roc_source* source,
   FILE* file_out,
   guint range[2])
 { 
   for(guint i=range[0]; i<range[1]; ++i){
-    roc_point point = {0, 0};
+    roc_point point = {0};
     roc_point_init(&point, source, i);
     fprintf(file_out, "# fpr tpr");
     fprintf(file_out, "%f %f\n", point.fpr, point.tpr);
@@ -146,18 +145,22 @@ void idhash_roc_curve(
 }
 
 #ifdef TEST_ROC_POINT
-int main(){
-  guint threshold=20;
+int main(int argc, char** argv){
+  if(2!=argc){
+    fprintf(stderr, "Usage: %s <THRESHOLD>\n", argv[0]);
+    exit(EXIT_FAILURE);
+  } 
 
-  roc_source source={0};
-  roc_source_init(&source, DEFAULT_DUP_FNAME, DEFAULT_NONDUP_FNAME);
+  roc_source* source = roc_source_create();
+  roc_source_init(source, DEFAULT_DUP_FNAME, DEFAULT_NONDUP_FNAME);
 
   roc_point point={0};
-  roc_point_init(&point, source, threshold);
+  roc_point_init(&point, source, strtoul(argv[1], 0, 0));
 
   printf("fpr: %f    tpr: %f\n", point.fpr, point.tpr);
 
-  roc_source_destroy(&source);
+  roc_source_destroy(source);
 
   return EXIT_SUCCESS;
 }
+#endif
