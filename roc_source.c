@@ -86,9 +86,27 @@ roc_source* roc_source_destroy(roc_source* source){
   return source;
 }
 
+roc_source* roc_source_reset_fp(roc_source* source){
+  if(fclose(source->fp_dup) 
+    || !(source->fp_dup = fopen(source->dupname, "r")))
+  {
+    fprintf(stderr, "Failed to reset duplicates file: %s\n",
+      source->dupname);
+    exit(EXIT_FAILURE);
+  } 
+  if(fclose(source->fp_nondup) 
+    || !(source->fp_nondup = fopen(source->nondupname, "r")))
+  {
+    fprintf(stderr, "Failed to reset non-duplicates file: %s\n",
+      source->nondupname);
+    exit(EXIT_FAILURE);
+  }  
+  return source;
+}
+
 roc_source* roc_source_print(roc_source* psource){
   printf("dupname: %s    nondupname: %s    fp_dup: %p    fp_nondup: %p\n", 
-    psource->dupname, psource->nondupname, (void*)psource->fp_dup, 
+    psource->dupname, psource->nondupname, (void*) psource->fp_dup, 
     (void*) psource->fp_nondup);
   return psource;
 }
