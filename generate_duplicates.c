@@ -90,7 +90,7 @@ void generate_duplicates(char source_dir[SZ_PATH], char target_dir[SZ_PATH]) {
       // Form input file path from dir and entry name.
       join_dir_to_name(in_path, source_dir, e->d_name);
       // Stat the entry, so we can get the type from the stat mode.
-      if(0>(fd = open(in_path, O_RDONLY)) || fstat(fd, &stat)){
+      if(-1 == (fd = open(in_path, O_RDONLY)) || fstat(fd, &stat)){
         fprintf(stderr, "Failed to inspect %s\n", e->d_name);
         exit(EXIT_FAILURE);
       }
