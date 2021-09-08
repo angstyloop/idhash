@@ -32,12 +32,12 @@ enemy).
 #  include "roc_source.c"
 #endif
 
-#ifndef DEFAULT_DUP_FNAME
-#  define DEFAULT_DUP_FNAME "duplicates.dat"
+#ifndef DEFAULT_DUPLICATES_DATA_FILE
+#  define DEFAULT_DUPLICATES_DATA_FILE "duplicates.dat"
 #endif
 
-#ifndef DEFAULT_NONDUP_FNAME
-#  define DEFAULT_NONDUP_FNAME "non-duplicates.dat"
+#ifndef DEFAULT_NONDUPLICATES_DATA_FILE
+#  define DEFAULT_NONDUPLICATES_DATA_FILE "non-duplicates.dat"
 #endif
 
 #ifndef DEFAULT_PLOT_FNAME
@@ -183,7 +183,7 @@ int main(int argc, char** argv){
   } 
 
   roc_source* source = roc_source_create();
-  roc_source_init(source, DEFAULT_DUP_FNAME, DEFAULT_NONDUP_FNAME);
+  roc_source_init(source, DEFAULT_DUPLICATES_DATA_FILE, DEFAULT_NONDUPLICATES_DATA_FILE);
 
   roc_point point={0};
   roc_point_init(&point, source, strtoul(argv[1], 0, 0));
@@ -197,7 +197,7 @@ int main(int argc, char** argv){
 #elif TEST_ROC_CURVE_PRINT
 int main(){
   roc_source* source = roc_source_create();
-  roc_source_init(source, DEFAULT_DUP_FNAME, DEFAULT_NONDUP_FNAME);
+  roc_source_init(source, DEFAULT_DUPLICATES_DATA_FILE, DEFAULT_NONDUPLICATES_DATA_FILE);
   guint range[2] = {0, 50};
   roc_curve_print(source, stdout, range);
   roc_source_destroy(source);
@@ -206,7 +206,7 @@ int main(){
 #elif TEST_ROC_OPTIMAL_THRESHOLD
 int main(){
   roc_source* source = roc_source_create();
-  roc_source_init(source, DEFAULT_DUP_FNAME, DEFAULT_NONDUP_FNAME);
+  roc_source_init(source, DEFAULT_DUPLICATES_DATA_FILE, DEFAULT_NONDUPLICATES_DATA_FILE);
   guint threshold=0;
   guint range[2] = {0, 50};
   roc_optimal_threshold(&threshold, source, range);
