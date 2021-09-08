@@ -65,8 +65,11 @@
 #define PATH_SEP '/'
 #endif
 
-void generate_numbered_files(char source_dir[SZ_PATH], char target_dir[SZ_PATH],
-  int start_index) {
+void generate_numbered_files(
+  char source_dir[SZ_PATH],
+  char target_dir[SZ_PATH],
+  int start_index) 
+{
   //Open source dir
   DIR* d = opendir(source_dir);
   int fd, i = start_index > 0 ? start_index : 0;

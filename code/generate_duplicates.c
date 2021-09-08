@@ -11,10 +11,9 @@
  *
  * Compile
  *
- * gcc generate_duplicates.c -DTEST_GENERATE_DUPLICATES -luuid \
- * -o test-generate-duplicates -Wall -g
+gcc generate_duplicates.c -DTEST_GENERATE_DUPLICATES -luuid -o test-generate-duplicates -Wall -g
  *
- * gcc generate_duplicates.c -o generate-duplicates -Wall -g -luuid
+gcc generate_duplicates.c -o generate-duplicates -Wall -g -luuid
  * 
  * 
  * Run 
@@ -64,18 +63,55 @@
 #  define PATH_SEP '/'
 #endif
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <assert.h>
-#include <fcntl.h>
+#ifndef TYPES_H
+#  define TYPES_H
+#  include <sys/types.h>
+#endif
 
-#include "join_dir_to_name.c"
-#include "copy.c"
-#include "uuid.c"
-#include "split.c"
+#ifndef STAT_H
+#  define STAT_H
+#  include <sys/stat.h>
+#endif
 
-void generate_duplicates(char source_dir[SZ_PATH], char target_dir[SZ_PATH]) {
+#ifndef DIRENT_H
+#  define DIRENT_H
+#  include <dirent.h>
+#endif
+
+#ifndef ASSERT_H
+#  define ASSERT_H
+#  include <assert.h>
+#endif
+
+#ifndef FCNTL_H
+#  define FCNTL_H
+#  include <fcntl.h>
+#endif
+
+#ifndef JOIN_DIR_TO_NAME_H
+#  define JOIN_DIR_TO_NAME_H
+#  include "join_dir_to_name.c"
+#endif
+
+#ifndef COPY_H
+#  define COPY_H
+#  include "copy.c"
+#endif
+
+#ifndef UUID_H
+#  define UUID_H
+#  include "uuid.c"
+#endif
+
+#ifndef SPLIT_H
+#  define SPLIT_H
+#  include "split.c"
+#endif
+
+void generate_duplicates(
+  char source_dir[SZ_PATH],
+  char target_dir[SZ_PATH]) 
+{
   // Open source dir
   DIR* d = opendir(source_dir);
   int fd;
@@ -208,6 +244,7 @@ int main(){
     fprintf(stderr, "Failed to delete temporary files and directories.");
     exit(EXIT_FAILURE);
   }
+  puts("OK");
   return EXIT_SUCCESS;
 }
 #else 

@@ -78,8 +78,11 @@ Compute the idhash between pair of @nfiles image files in @dir. Repeat the
 computation @ndata times for each pair, and print statistics such as mean
 and standard deviation to @dat.
 */
-void idhash_directory(char dir[static 1], char datafile[static 1],
-  int nfiles, int ndata)
+void idhash_directory(
+  char dir[static 1],
+  char datafile[static 1],
+  int nfiles,
+  int ndata)
 {
   char path_a[SZ_PATH]={0}, path_b[SZ_PATH]={0};
   FILE* fp; 
