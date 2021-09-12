@@ -75,11 +75,11 @@ void do_work(){
   // generate numbered files (tested)
   generate_numbered_files(DEFAULT_JPEGS_DIR, DEFAULT_NUMBERED_JPEGS_DIR, 1);
 
-  // generate duplicates and non-duplicates
+  // generate duplicates and non-duplicates (tested)
   generate_duplicates(DEFAULT_NUMBERED_JPEGS_DIR, DEFAULT_DUPLICATES_DIR);
   generate_nonduplicates(DEFAULT_NUMBERED_JPEGS_DIR, DEFAULT_NONDUPLICATES_DIR);
 
-  // run idhash_directory on duplicates/ and non-duplicates/
+  // run idhash_directory on duplicates/ and non-duplicates/ (winging it)
   int iterations = 1000;
   idhash_directory(DEFAULT_DUPLICATES_DIR, DEFAULT_DUPLICATES_DATA_FILE, 
     image_count, iterations);
@@ -95,7 +95,7 @@ void do_work(){
       DEFAULT_DUPLICATES_DATA_FILE);
     exit(EXIT_FAILURE);
   }  
-  idhash_stats_process_data_file(&dup_range[0], &dup_range[1], fp);
+  idhash_stats_process_data_file(&dup_range[0], &dup_range[1], fp); //(tested)
   fclose(fp);
 
   // nonduplicates
@@ -105,18 +105,19 @@ void do_work(){
       DEFAULT_NONDUPLICATES_DATA_FILE);
     exit(EXIT_FAILURE);
   }
+  //(tested)
   idhash_stats_process_data_file(&nondup_range[0], &nondup_range[1], fp);
   fclose(fp);
 
   range thresh_range={0};
-  range_containing(&thresh_range, dup_range, nondup_range);
+  range_containing(&thresh_range, dup_range, nondup_range); //(winging it)
 
   // compute the optimal threshold based on the data
   guint threshold=0;
   roc_source* psource = roc_source_create();
   roc_source_init(psource, DEFAULT_DUPLICATES_DATA_FILE, 
     DEFAULT_NONDUPLICATES_DATA_FILE);
-  roc_optimal_threshold(&threshold, psource, thresh_range);
+  roc_optimal_threshold(&threshold, psource, thresh_range); //(winging it)
   roc_source_destroy(psource);
 
   // make a plotfile for gnuplot
@@ -124,7 +125,7 @@ void do_work(){
     fprintf(stderr, "Failed to open plot file %s\n", DEFAULT_ROC_PLOT_FILE);
     exit(EXIT_FAILURE);
   } 
-  roc_curve_print(psource, fp, thresh_range);
+  roc_curve_print(psource, fp, thresh_range); //(winging it)
   fclose(fp);
 }
 

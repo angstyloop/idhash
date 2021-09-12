@@ -1,7 +1,9 @@
 /*
 gcc -g -Wall roc_point.c -o test-roc-point -DTEST_ROC_POINT `pkg-config vips --libs --cflags` -lm
 
-gcc -g -Wall roc_point.c -o test-roc-curve-print -DTEST_ROC_CURVE_PRINT 
+gcc -g -Wall roc_point.c -o test-roc-curve-print -DTEST_ROC_CURVE_PRINT `pkg-config vips --libs --cflags` -lm
+
+
 
 gcc -g -Wall roc_point.c -o test-roc-optimal-threshold -DTEST_ROC_OPTIMAL_THRESHOLD `pkg-config vips --libs --cflags` -lm
 
