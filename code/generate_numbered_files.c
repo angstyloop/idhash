@@ -7,7 +7,7 @@
  *
  * Compile
  *
- * gcc generate_numbered_files.c -o generate-numbered-files -luuid
+gcc generate_numbered_files.c -o generate-numbered-files -luuid
  * 
  *
  * Usage
@@ -17,8 +17,7 @@
  *
  * Compile test
  * 
- * gcc generate_numbered_files.c -DTEST_GENERATE_NUMBERED_FILES -luuid
- *   -o test-generate-numbered-files
+gcc generate_numbered_files.c -DTEST_GENERATE_NUMBERED_FILES -luuid -o test-generate-numbered-files
  * 
  *
  * Test
@@ -158,7 +157,7 @@ int main(){
     fprintf(stderr, "Failed to delete temporary files and directories.");
     exit(EXIT_FAILURE);
   }
-
+  puts("OK");
   return EXIT_SUCCESS;
 }
 #else

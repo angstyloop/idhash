@@ -8,8 +8,7 @@
  *
  *  COMPILE
  * 
- *  gcc  generate_nonduplicates.c -o generate-nonduplicates -luuid \
- *  -DRUN_GENERATE_NONDUPLICATES
+gcc  generate_nonduplicates.c -o generate-nonduplicates -luuid -DRUN_GENERATE_NONDUPLICATES
  *
  *
  *  USAGE
@@ -19,8 +18,7 @@
  *
  *  COMPILE TEST
  *
- *  gcc generate_nonduplicates.c -o test-generate-nonduplicates -luuid
- *    -DTEST_GENERATE_NONDUPLICATES
+gcc generate_nonduplicates.c -o test-generate-nonduplicates -luuid -DTEST_GENERATE_NONDUPLICATES
  * 
  * 
  *  TEST
@@ -397,6 +395,7 @@ int main(){
     fprintf(stderr, "Failed to delete temporary files and directories.");
     exit(EXIT_FAILURE);
   } 
+  puts("OK");
   return EXIT_SUCCESS;
 }
 #elif defined(RUN_GENERATE_NONDUPLICATES)

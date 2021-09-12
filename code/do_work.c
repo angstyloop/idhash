@@ -67,12 +67,12 @@ void range_containing(range* range_out, range range_a, range range_b){
 #define DEFAULT_ROC_PLOT_FILE "/home/falkor/source/idhash/roc.plot"
 
 void do_work(){
-  // count the images
+  // count the images (tested)
   char* dname = "foo";
   unsigned image_count=0;
   count_images(&count, DEFAULT_JPEGS_DIR);
 
-  // generate numbered files
+  // generate numbered files (tested)
   generate_numbered_files(DEFAULT_JPEGS_DIR, DEFAULT_NUMBERED_JPEGS_DIR, 1);
 
   // generate duplicates and non-duplicates
