@@ -16,7 +16,7 @@
  *
  * COMPILE
  * 
-gcc -o idhash-directory -g -Wall idhash.h bit_array.h histogram.h idhash_directory.c `pkg-config vips --cflags --libs` -luuid -lm
+gcc -o idhash-directory -DCMD_IDHASH_DIRECTORY -g -Wall idhash.h bit_array.h histogram.h idhash_directory.c `pkg-config vips --cflags --libs` -luuid -lm
  *
  * RUN
  *
@@ -105,6 +105,7 @@ void idhash_directory(
   fclose(fp);
 }
 
+#ifdef CMD_IDHASH_DIRECTORY
 int main(int argc, char* argv[argc]){
   if(!(argc==5 && *argv[1] && *argv[2] && *argv[3] && *argv[4])){
     fprintf(stderr, "Usage: %s <TARGET_DIR> <DATA_FILE> <N_MAX> <N_DATA>\n", argv[0]);
@@ -115,4 +116,4 @@ int main(int argc, char* argv[argc]){
   idhash_directory(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]));
   return EXIT_SUCCESS;
 }
-
+#endif

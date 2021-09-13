@@ -13,7 +13,7 @@
  *
 gcc generate_duplicates.c -DTEST_GENERATE_DUPLICATES -luuid -o test-generate-duplicates -Wall -g
  *
-gcc generate_duplicates.c -o generate-duplicates -Wall -g -luuid
+gcc generate_duplicates.c -DCMD_GENERATE_DUPLICATES -luuid -o generate-duplicates -Wall -g -luuid
  * 
  * 
  * Run 
@@ -247,7 +247,7 @@ int main(){
   puts("OK");
   return EXIT_SUCCESS;
 }
-#else 
+#elif defined(CMD_GENERATE_DUPLICATES)
 // Usage: ./generate-duplicates <SOURCE_DIR> <TARGET_DIR> 
 int main(int argc, char* argv[argc]){
   if(argc!=3){

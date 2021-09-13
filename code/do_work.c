@@ -1,5 +1,5 @@
 /*
-gcc do_work.c -o do-work -DTEST_DO_WORK -g -Wall
+gcc do_work.c -o do-work -DTEST_DO_WORK -g -Wall `pkg-config vips --cflags --libs` -lm -luuid
 
 Pre-step
 
@@ -18,7 +18,7 @@ searcher.
     a threshold that will be tuned by picking the "perfect classifier" point
     on a Receiver Operating Characteristic Curve (ROC).
 
-[x] Run idhash_directory on duplicates/ and non-duplicates/. This will take
+x] Run idhash_directory on duplicates/ and non-duplicates/. This will take
     the idhash distance, averaged over many iterations, for each pair, and
     print these values and more statistics to a data file. After calling 
     idhash_directory twice, the result will be two data files, one for
@@ -43,34 +43,121 @@ searcher.
 Done!
 */
 
-typdef range guint[2];
+#ifndef STDLIB_H
+#  define STDLIB_H
+#  include <stdlib.h>
+#endif
 
-#define max(pmax, x, y) do {\
-  *pmax = x < y ? y : x;    \
-}while(0);
+#ifndef STDIO_H
+#  define STDIO_H
+#  include <stdio.h>
+#endif
 
-#define min(pmin, x, y) do {\
-  *pmin = x > y ? y : x;     \
-}while(0);
+#ifndef STAT_H
+#  define STAT_H
+#  include <sys/stat.h>
+#endif
 
-void range_containing(range* range_out, range range_a, range range_b){
-  min(&range_out[0], range_a[0], range_b[0]);
-  max(&range_out[1], range_a[1], range_b[1]);
+#ifndef TYPES_H
+#  define TYPES_H
+#  include <sys/types.h>
+#endif
+
+#ifndef UNISTD_H
+#  define UNISTD_H
+#  include <unistd.h>
+#endif
+
+#ifndef FCNTL_H
+#  define FCNTL_H
+#  include <fcntl.h>
+#endif
+
+#ifndef VIPS_H
+#  define VIPS_H
+#  include <vips/vips.h>
+#endif
+
+#ifndef COUNT_IMAGES_H
+#  define COUNT_IMAGES_H
+#  include "count_jpegs.c"
+#endif
+
+#ifndef GENERATE_NUMBERED_FILES_H
+#  define GENERATE_NUMBERED_FILES_H
+#  include "generate_numbered_files.c"
+#endif
+
+#ifndef GENERATE_DUPLCATES_H
+#  define GENERATE_DUPLCATES_H
+#  include "generate_duplicates.c"
+#endif
+
+#ifndef GENERATE_NONDUPLICATES_H
+#  define GENERATE_NONDUPLICATES_H
+#  include "generate_nonduplicates.c"
+#endif
+
+#ifndef IDHASH_DIRECTORY_H
+#  define IDHASH_DIRECTORY_H
+#  include "idhash_directory.c"
+#endif
+
+#ifndef ROC_SOURCE_H
+#  define ROC_SOURCE_H
+#  include "roc_source.c"
+#endif
+
+#ifndef ROC_POINT_H
+#  define ROC_POINT_H
+#  include "roc_point.c"
+#endif
+
+guint max(guint x, guint y){
+  return x < y ? y : x;
 }
 
-#define DEFAULT_JPEGS_DIR "/home/falkor/source/idhash/jpegs"
-#define DEFAULT_NUMBERED_JPEGS_DIR "/home/falkor/source/idhash/numbered-jpegs"
-#define DEFAULT_DUPLICATES_DIR "/home/falkor/source/idhash/duplicates"
-#define DEFAULT_NONDUPLICATES_DIR "/home/falkor/source/idhash/non-duplicates"
-#define DEFAULT_DUPLICATES_DATA_FILE "/home/falkor/source/idhash/duplicates.dat"
-#define DEFAULT_NONDUPLICATES_DATA_FILE "/home/falkor/source/idhash/non-duplicates.dat"
-#define DEFAULT_ROC_PLOT_FILE "/home/falkor/source/idhash/roc.plot"
+guint min(guint x, guint y){
+  return x > y ? y : x;
+}
+
+void range_containing(guint range_out[2], guint range_a[2], guint range_b[2]){
+  range_out[0] = min(range_a[0], range_b[0]);
+  range_out[1] = max(range_a[1], range_b[1]);
+}
+
+#ifndef DEFAULT_JPEGS_DIR
+#  define DEFAULT_JPEGS_DIR "/home/falkor/source/idhash/jpegs"
+#endif
+
+#ifndef DEFAULT_NUMBERED_JPEGS_DIR
+#  define DEFAULT_NUMBERED_JPEGS_DIR "/home/falkor/source/idhash/numbered-jpegs"
+#endif
+
+#ifndef DEFAULT_DUPLICATES_DIR
+#  define DEFAULT_DUPLICATES_DIR "/home/falkor/source/idhash/duplicates"
+#endif
+
+#ifndef DEFAULT_NONDUPLICATES_DIR
+#  define DEFAULT_NONDUPLICATES_DIR "/home/falkor/source/idhash/non-duplicates"
+#endif
+
+#ifndef DEFAULT_DUPLICATES_DATA_FILE
+#  define DEFAULT_DUPLICATES_DATA_FILE "/home/falkor/source/idhash/duplicates.dat"
+#endif
+
+#ifndef DEFAULT_NONDUPLICATES_DATA_FILE
+#  define DEFAULT_NONDUPLICATES_DATA_FILE "/home/falkor/source/idhash/non-duplicates.dat"
+#endif
+
+#ifndef DEFAULT_ROC_PLOT_FILE
+#  define DEFAULT_ROC_PLOT_FILE "/home/falkor/source/idhash/roc.plot"
+#endif
 
 void do_work(){
   // count the images (tested)
-  char* dname = "foo";
-  unsigned image_count=0;
-  count_images(&count, DEFAULT_JPEGS_DIR);
+  unsigned jpeg_count=0;
+  count_jpegs(&jpeg_count, DEFAULT_JPEGS_DIR);
 
   // generate numbered files (tested)
   generate_numbered_files(DEFAULT_JPEGS_DIR, DEFAULT_NUMBERED_JPEGS_DIR, 1);
@@ -82,35 +169,35 @@ void do_work(){
   // run idhash_directory on duplicates/ and non-duplicates/ (winging it)
   int iterations = 1000;
   idhash_directory(DEFAULT_DUPLICATES_DIR, DEFAULT_DUPLICATES_DATA_FILE, 
-    image_count, iterations);
+    jpeg_count, iterations);
 
   // use idhash_stats_process_data_file to get the range for the threshold. 
   // compute the smallest range containing both ranges.
 
   // duplicates
-  range dup_range={0};
+  guint dup_range[2]={0};
   FILE* fp=0;
   if(!(fp = fopen(DEFAULT_DUPLICATES_DATA_FILE, "r"))){
     fprintf(stderr, "Failed to print duplicates data file %s\n",
       DEFAULT_DUPLICATES_DATA_FILE);
     exit(EXIT_FAILURE);
   }  
-  idhash_stats_process_data_file(&dup_range[0], &dup_range[1], fp); //(tested)
+  idhash_stats_process_data_file(dup_range, dup_range+1, fp); //(tested)
   fclose(fp);
 
   // nonduplicates
-  range nondup_range={0};
+  guint nondup_range[2]={0};
   if(!(fp = fopen(DEFAULT_NONDUPLICATES_DATA_FILE, "r"))){
     fprintf(stderr, "Failed to print non-duplicates data file %s\n",
       DEFAULT_NONDUPLICATES_DATA_FILE);
     exit(EXIT_FAILURE);
   }
   //(tested)
-  idhash_stats_process_data_file(&nondup_range[0], &nondup_range[1], fp);
+  idhash_stats_process_data_file(nondup_range, nondup_range+1, fp);
   fclose(fp);
 
-  range thresh_range={0};
-  range_containing(&thresh_range, dup_range, nondup_range); //(winging it)
+  guint thresh_range[2]={0};
+  range_containing(thresh_range, dup_range, nondup_range); //(winging it)
 
   // compute the optimal threshold based on the data
   guint threshold=0;
@@ -129,7 +216,7 @@ void do_work(){
   fclose(fp);
 }
 
-#ifdef test_do_work
+#ifdef TEST_DO_WORK
 int main() {
   printf("Hey screw you buddy!");
   return EXIT_SUCCESS;

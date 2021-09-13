@@ -59,16 +59,50 @@ gcc generate_nonduplicates.c -o test-generate-nonduplicates -luuid -DTEST_GENERA
 #  define PATH_SEP '/'
 #endif
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <assert.h>
-#include <fcntl.h>
+#ifndef TYPES_H
+#  define TYPES_H
+#  include <sys/types.h>
+#endif
 
-#include "join_dir_to_name.c"
-#include "copy.c"
-#include "uuid.c"
-#include "split.c"
+#ifndef STAT_H
+#  define STAT_H
+#  include <sys/stat.h>
+#endif
+
+#ifndef DIRENT_H
+#  define DIRENT_H
+#  include <dirent.h>
+#endif
+
+#ifndef ASSERT_H
+#  define ASSERT_H
+#  include <assert.h>
+#endif
+
+#ifndef FCNTL_H
+#  define FCNTL_H
+#  include <fcntl.h>
+#endif
+
+#ifndef JOIN_DIR_TO_NAME_H
+#  define JOIN_DIR_TO_NAME_H
+#  include "join_dir_to_name.c"
+#endif
+
+#ifndef COPY_H
+#  define COPY_H
+#  include "copy.c"
+#endif
+
+#ifndef UUID_H
+#  define UUID_H
+#  include "uuid.c"
+#endif
+
+#ifndef SPLIT_H
+#  define SPLIT_H
+#  include "split.c"
+#endif
 
 typedef struct file_info file_info;
 struct file_info {

@@ -7,7 +7,7 @@
  *
  * Compile
  *
-gcc generate_numbered_files.c -o generate-numbered-files -luuid
+gcc generate_numbered_files.c -o generate-numbered-files -DCMD_GENERATE_NUMBERED_FILES -luuid
  * 
  *
  * Usage
@@ -46,22 +46,61 @@ gcc generate_numbered_files.c -DTEST_GENERATE_NUMBERED_FILES -luuid -o test-gene
 #  include <unistd.h>
 #endif
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <assert.h>
-#include <fcntl.h>
+#ifndef TYPES_H
+#  define TYPES_H
+#  include <sys/types.h>
+#endif
 
-#include "join_dir_to_name.c"
-#include "copy.c"
-#include "uuid.c"
-#include "split.c"
+#ifndef STAT_H
+#  define STAT_H
+#  include <sys/stat.h>
+#endif
 
-#define SZ_NAME 256
-#define SZ_PATH 4096
+#ifndef DIRENT_H
+#  define DIRENT_H
+#  include <dirent.h>
+#endif
+
+#ifndef ASSERT_H
+#  define ASSERT_H
+#  include <assert.h>
+#endif
+
+#ifndef FCNTL_H
+#  define FCNTL_H
+#  include <fcntl.h>
+#endif
+
+#ifndef JOIN_DIR_TO_NAME_H
+#  define JOIN_DIR_TO_NAME_H
+#  include "join_dir_to_name.c"
+#endif
+
+#ifndef COPY_H
+#  define COPY_H
+#  include "copy.c"
+#endif
+
+#ifndef UUID_H
+#  define UUID_H
+#  include "uuid.c"
+#endif
+
+#ifndef SPLIT_H
+#  define SPLIT_H
+#  include "split.c"
+#endif
+
+#ifndef SZ_NAME
+#  define SZ_NAME 256
+#endif
+
+#ifndef SZ_PATH
+#  define SZ_PATH 4096
+#endif
 
 #ifndef PATH_SEP
-#define PATH_SEP '/'
+#  define PATH_SEP '/'
 #endif
 
 void generate_numbered_files(
@@ -160,7 +199,7 @@ int main(){
   puts("OK");
   return EXIT_SUCCESS;
 }
-#else
+#elif defined(CMD_GENERATE_NUMBERED_FILES)
 int main(int argc, char* argv[argc]) {
   if(argc!=4){
     fprintf(stderr, "Usage: %s <SOURCE_DIR> <TARGET_DIR> <START_INDEX>\n", 
