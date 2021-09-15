@@ -1,0 +1,222 @@
+7x5
+ooooooo
+ooooooo
+ooooooo
+ooooooo
+ooooooo
+0
+ ooooo
+ooo  oo
+oo o oo
+oo  ooo
+ ooooo
+1
+ oooo
+ooooo
+  ooo
+  ooo
+ooooooo
+2
+ ooooo
+oo  ooo
+   ooo
+ ooo
+ooooooo
+3
+oooooo
+    ooo
+ ooooo
+    ooo
+oooooo
+4
+   oooo
+  ooooo
+ oo  oo
+ooooooo
+     oo
+5
+ooooooo
+oo
+oooooo
+     oo
+oooooo
+6
+ ooooo
+oo
+oooooo
+oo   oo
+ ooooo
+7
+ooooooo
+oo   oo
+    oo
+   oo
+  oo
+8
+ ooooo
+oo   oo
+ ooooo
+oo   oo
+ ooooo
+9
+ooooooo
+oo  ooo
+ooooooo
+    ooo
+    ooo
+A
+ ooooo
+oo   oo
+ooooooo
+oo   oo
+oo   oo
+B
+oooooo
+oo   oo
+oooooo
+oo   oo
+oooooo
+C
+ ooooo
+oo   oo
+oo
+oo   oo
+ ooooo
+D
+oooooo
+oo   oo
+oo   oo
+oo   oo
+oooooo
+E
+ooooooo
+oo
+oooooo
+oo
+ooooooo
+F
+ooooooo
+oo
+oooooo
+oo
+oo
+G
+ ooooo
+oo   
+oo  ooo
+oo   oo
+ ooooo
+H
+oo   oo
+oo   oo
+ooooooo
+oo   oo
+oo   oo
+I
+ooooooo
+  ooo
+  ooo
+  ooo
+ooooooo
+J
+     oo
+     oo
+     oo
+oo   oo
+ooooooo
+K
+oo   oo
+oo   oo
+oooooo
+oo   oo
+oo   oo
+L
+oo
+oo
+oo
+oo
+ooooooo
+M
+ooooooo
+ooooooo
+oo oo o
+oo oo o
+oo    o
+N
+oo   oo
+ooo  oo
+oooo oo
+oo oooo
+oo  ooo
+O
+ ooooo
+oo   oo
+oo   oo
+oo   oo
+ ooooo
+P
+ooooooo
+oo   oo
+ooooooo
+oo
+oo
+Q
+ oooo
+oo  oo
+oo  oo
+oo  oo
+ ooo oo
+R
+oooooo
+oo   oo
+oooooo
+oo   oo
+oo   oo
+S
+ ooooo
+oo
+ooooooo
+     oo
+ ooooo
+T
+ooooooo
+ooooooo
+  ooo
+  ooo
+  ooo
+U
+oo   oo
+oo   oo
+oo   oo
+oo   oo
+ooooooo
+V
+oo   oo
+oo   oo
+ oo oo
+  ooo
+   o
+W
+oo    o
+oo oo o
+oo oo o
+oo oo o
+ooooooo
+X
+oo   oo
+ oo oo
+  ooo
+ oo oo
+oo   oo
+Y
+oo   oo
+ oo oo
+  ooo
+  ooo
+  ooo
+Z
+ooooooo
+    ooo
+  ooo
+ooo
+ooooooo
