@@ -211,6 +211,7 @@ void do_work(){
   roc_source_init(psource, DEFAULT_DUPLICATES_DATA_FILE, 
     DEFAULT_NONDUPLICATES_DATA_FILE);
   roc_optimal_threshold(&threshold, psource, thresh_range); //(winging it)
+  printf("optimal threshold: %u\n", threshold);
 
   // make a plotfile for gnuplot
   if(!(fp = fopen(DEFAULT_ROC_PLOT_FILE, "w"))){
