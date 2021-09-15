@@ -154,6 +154,10 @@ void range_containing(guint range_out[2], guint range_a[2], guint range_b[2]){
 #  define DEFAULT_ROC_PLOT_FILE "/home/falkor/source/idhash/roc.plot"
 #endif
 
+#ifndef DEFAULT_ITERATIONS
+#  define DEFAULT_ITERATIONS 100
+#endif
+
 void do_work(){
   // count the images (tested)
   unsigned jpeg_count=0;
@@ -167,8 +171,10 @@ void do_work(){
   generate_nonduplicates(DEFAULT_NUMBERED_JPEGS_DIR, DEFAULT_NONDUPLICATES_DIR);
 
   // run idhash_directory on duplicates/ and non-duplicates/ (winging it)
-  int iterations = 1000;
+  int iterations = DEFAULT_ITERATIONS;
   idhash_directory(DEFAULT_DUPLICATES_DIR, DEFAULT_DUPLICATES_DATA_FILE, 
+    jpeg_count, iterations);
+  idhash_directory(DEFAULT_NONDUPLICATES_DIR, DEFAULT_NONDUPLICATES_DATA_FILE,
     jpeg_count, iterations);
 
   // use idhash_stats_process_data_file to get the range for the threshold. 
@@ -205,20 +211,22 @@ void do_work(){
   roc_source_init(psource, DEFAULT_DUPLICATES_DATA_FILE, 
     DEFAULT_NONDUPLICATES_DATA_FILE);
   roc_optimal_threshold(&threshold, psource, thresh_range); //(winging it)
-  roc_source_destroy(psource);
 
   // make a plotfile for gnuplot
-  if(!(fp = fopen(DEFAULT_ROC_PLOT_FILE, "r"))){
+  if(!(fp = fopen(DEFAULT_ROC_PLOT_FILE, "w"))){
     fprintf(stderr, "Failed to open plot file %s\n", DEFAULT_ROC_PLOT_FILE);
     exit(EXIT_FAILURE);
   } 
   roc_curve_print(psource, fp, thresh_range); //(winging it)
+
+  // clean up
+  roc_source_destroy(psource);
   fclose(fp);
 }
 
 #ifdef TEST_DO_WORK
 int main() {
-  printf("Hey screw you buddy!");
+  do_work();
   return EXIT_SUCCESS;
 }
 #endif

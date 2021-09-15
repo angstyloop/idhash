@@ -31,10 +31,6 @@ enemy).
 #  define DEFAULT_NONDUP_FNAME "non-duplicates.dat"
 #endif
 
-#ifndef DEFAULT_PLOT_FNAME
-#  define DEFAULT_PLOT_FNAME "roc.plot"
-#endif
-
 // A class holding a pair of FILE pointers and their names. @fp_dup points 
 // to the duplicates file. @fp_nondup points to the non-duplicates data
 // file.

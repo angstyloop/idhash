@@ -35,6 +35,11 @@ TEST_IDHASH_STATS_PARSE_LINE
 #  include <float.h>
 #endif
 
+#ifndef SKIP_LINE_H
+#  define SKIP_LINE_H
+#  include "skip_line.c"
+#endif
+
 #ifndef IDHASH_H
 #  define IDHASH_H
 #  include "idhash.h"
@@ -153,7 +158,7 @@ static void null_check(char p[static 1]){
 }
 
 static void header_error(char* line){
-  if(line){
+  if(!line){
     fprintf(stderr, "malformed header line:\n%s\n", line);
     free(line);
   }
@@ -161,7 +166,7 @@ static void header_error(char* line){
 }
 
 // 1 or more digits at the end of the line
-#define HEADER_VALUE_REG "[:digit:]+$"
+#define HEADER_VALUE_REG "[0-9][0-9]*"
 
 void idhash_stats_parse_header_int(int* out, FILE* fp){
   char* line=0, * p=0;
@@ -178,7 +183,7 @@ void idhash_stats_parse_header_int(int* out, FILE* fp){
 }
 
 // Parse the header, which is currently just the number of files and number 
-// of trials.
+// of trials. Skip the line containing the column headers.
 void idhash_stats_parse_header(
   int* nfiles,
   int* ndata,
@@ -186,6 +191,7 @@ void idhash_stats_parse_header(
 {
   idhash_stats_parse_header_int(nfiles, fp);
   idhash_stats_parse_header_int(ndata, fp);
+  skip_line(fp);
 }
 
 /* Parse @line - which is at least one character long, presumably the 
@@ -247,10 +253,10 @@ void idhash_stats_process_data_file(guint* min, guint* max, FILE* fp){
     idhash_stats_parse_line(&stats, line);
     if(lowest_mean > stats.mean) highest_mean = stats.mean;
     else if(highest_mean < stats.mean) lowest_mean = stats.mean;
-    free(line);
   }
+  free(line);
 
-  if(!(lowest_mean < DBL_MAX && highest_mean < DBL_MAX)){
+  if(lowest_mean > DBL_MAX || highest_mean > DBL_MAX){
     fprintf(stderr, "mean exceeds DBL_MAX\n");
     exit(EXIT_FAILURE);
   } 
