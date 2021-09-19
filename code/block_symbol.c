@@ -7,10 +7,13 @@ gcc block_symbol.c -o test-block-symbol -DTEST_BLOCK_SYMBOL -g -Wall
 
 #define BLOCK_SYMBOLS_FILE "/home/falkor/source/idhash/block_alphabet.txt"
 
+// Return true iff c is between l and r, inclusive.
 int char_in_closed_range(char c, char l, char r){
   return l <= c && c <= r;
 }
 
+// Return true iff the block symbol is in the database. Shortcut just checks
+// ranges.
 int block_symbol_exists(char c){
   return char_in_closed_range(c, 'A', 'Z') 
     || char_in_closed_range(c, '0', '9');
@@ -56,6 +59,7 @@ void skip_lines(FILE* fp, unsigned nlines){
   }
   free(line);
 }
+
 
 // Print @nlines lines beginning at the line numbered @pos. The first line
 // has @pos = 0;
@@ -132,7 +136,6 @@ void print_lines_n(
   char* line=0;
   size_t n=0;
   ssize_t z=0;
-  FILE** fp=0;
   // Skip to target line with index @pos in the vector of file pointers.
   for(FILE** fp=fpvin; *fp; ++fp) skip_lines(*fp, pos);
   // Starting at the target line, loop over @nlines lines.
@@ -150,10 +153,9 @@ void print_lines_n(
       // character to the output file.
       if(*(fp+1)) fwrite(" ", 1, 1, fpout);
     }
-    // If line $i does not end in a newline character already and is
-    // not the last of the @nlines lines, write a terminating newline
-    // character to the output file.
-    if('\n' != line[z-1] && nlines-1 != i) fwrite("\n", 1, 1, fpout);
+    // If line $i not the last of the @nlines lines, write a terminating 
+    // newline character to the output file.
+    if(nlines-1 != i) fwrite("\n", 1, 1, fpout);
   }
   // Clean up.
   if(line) free(line);
@@ -163,8 +165,13 @@ void print_lines_n(
 int main(){
   FILE* in1 = fopen(BLOCK_SYMBOLS_FILE, "r");
   FILE* in2 = fopen(BLOCK_SYMBOLS_FILE, "r");
-  print_lines_n(in1, in2, stdout, 1, 5);
+  FILE* in3 = fopen(BLOCK_SYMBOLS_FILE, "r");
+  FILE* fpv[] = {in1, in2, in3, 0};
+  print_lines_n(fpv, stdout, 1, 5);
   return EXIT_SUCCESS;
+  fclose(in1);
+  fclose(in2);
+  fclose(in3);
 }
 #endif
 
@@ -186,9 +193,15 @@ void block_symbol_print(FILE* out, char c){
 void split_block_symbol_file(){
   FILE* in = fopen(BLOCK_SYMBOLS_FILE, "r");
   if(!in){
-    perror("split_block_symbol_file: Unable to open block-alphabet file.");
+    perror("split_block_symbol_file: Unable to open block-symbols file.");
     exit(EXIT_FAILURE);
   }
+  // go to line for '0' and start there
+  // define special_dir
+  // for each block of 1+5 lines
+  //   grab the name from the first line of the block
+  //   create a file named after the symbol in special_dir
+  //   write last 5 lines of the block to the new file
 
   fclose(in);
 }
