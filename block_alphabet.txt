@@ -5,29 +5,29 @@ ooooooo
 ooooooo
 ooooooo
 0
- ooooo
+ ooooo 
 ooo  oo
 oo o oo
 oo  ooo
- ooooo
+ ooooo 
 1
- oooo
-ooooo
-  ooo
-  ooo
+ oooo  
+ooooo  
+  ooo  
+  ooo  
 ooooooo
 2
- ooooo
+ ooooo 
 oo  ooo
-   ooo
- ooo
+   ooo 
+ ooo   
 ooooooo
 3
-oooooo
+oooooo 
     ooo
- ooooo
+ ooooo 
     ooo
-oooooo
+oooooo 
 4
    oooo
   ooooo
@@ -36,28 +36,28 @@ ooooooo
      oo
 5
 ooooooo
-oo
-oooooo
+oo     
+oooooo 
      oo
-oooooo
+oooooo 
 6
- ooooo
-oo
-oooooo
+ ooooo 
+oo     
+oooooo 
 oo   oo
  ooooo
 7
 ooooooo
 oo   oo
-    oo
-   oo
-  oo
+    oo 
+   oo  
+  oo   
 8
- ooooo
+ ooooo 
 oo   oo
- ooooo
+ ooooo 
 oo   oo
- ooooo
+ ooooo 
 9
 ooooooo
 oo  ooo
@@ -65,47 +65,47 @@ ooooooo
     ooo
     ooo
 A
- ooooo
+ ooooo 
 oo   oo
 ooooooo
 oo   oo
 oo   oo
 B
-oooooo
+oooooo 
 oo   oo
-oooooo
+oooooo 
 oo   oo
-oooooo
+oooooo 
 C
- ooooo
+ ooooo 
 oo   oo
-oo
+oo     
 oo   oo
- ooooo
+ ooooo 
 D
-oooooo
+oooooo 
 oo   oo
 oo   oo
 oo   oo
-oooooo
+oooooo 
 E
 ooooooo
-oo
-oooooo
-oo
+oo     
+oooooo 
+oo     
 ooooooo
 F
 ooooooo
-oo
-oooooo
-oo
-oo
+oo     
+oooooo 
+oo     
+oo     
 G
- ooooo
-oo   
+ ooooo 
+oo     
 oo  ooo
 oo   oo
- ooooo
+ ooooo 
 H
 oo   oo
 oo   oo
@@ -114,8 +114,8 @@ oo   oo
 oo   oo
 I
 ooooooo
-  ooo
-  ooo
+  ooo  
+  ooo  
   ooo
 ooooooo
 J
@@ -126,15 +126,15 @@ oo   oo
 ooooooo
 K
 oo   oo
-oo   oo
-oooooo
-oo   oo
+oo  oo 
+ooooo  
+oo  oo 
 oo   oo
 L
-oo
-oo
-oo
-oo
+oo     
+oo     
+oo     
+oo     
 ooooooo
 M
 ooooooo
@@ -149,41 +149,41 @@ oooo oo
 oo oooo
 oo  ooo
 O
- ooooo
+ ooooo 
 oo   oo
 oo   oo
 oo   oo
- ooooo
+ ooooo 
 P
 ooooooo
 oo   oo
 ooooooo
-oo
-oo
+oo     
+oo     
 Q
- oooo
-oo  oo
-oo  oo
-oo  oo
+ oooo  
+oo  oo 
+oo  oo 
+oo  oo 
  ooo oo
 R
-oooooo
+oooooo 
 oo   oo
-oooooo
+oooooo 
 oo   oo
 oo   oo
 S
- ooooo
-oo
+ ooooo 
+oo     
 ooooooo
      oo
- ooooo
+ ooooo 
 T
 ooooooo
 ooooooo
-  ooo
-  ooo
-  ooo
+  ooo  
+  ooo  
+  ooo  
 U
 oo   oo
 oo   oo
@@ -193,9 +193,9 @@ ooooooo
 V
 oo   oo
 oo   oo
- oo oo
-  ooo
-   o
+ oo oo 
+  ooo  
+   o   
 W
 oo    o
 oo oo o
@@ -204,19 +204,19 @@ oo oo o
 ooooooo
 X
 oo   oo
- oo oo
-  ooo
- oo oo
+ oo oo 
+  ooo  
+ oo oo 
 oo   oo
 Y
 oo   oo
- oo oo
-  ooo
-  ooo
-  ooo
+ oo oo 
+  ooo  
+  ooo  
+  ooo  
 Z
 ooooooo
     ooo
-  ooo
-ooo
+  ooo  
+ooo    
 ooooooo
