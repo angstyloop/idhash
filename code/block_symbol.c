@@ -191,16 +191,28 @@ void block_symbol_print(FILE* out, char c){
 
 // Create a new file for each block symbol in the block symbols file.
 void split_block_symbol_file(){
-  FILE* in = fopen(BLOCK_SYMBOLS_FILE, "r");
-  if(!in){
+  FILE* fp = fopen(BLOCK_SYMBOLS_FILE, "r");
+  if(!fp){
     perror("split_block_symbol_file: Unable to open block-symbols file.");
     exit(EXIT_FAILURE);
   }
   // go to line for '0' and start there
-  // define special_dir
+  skip_lines(fp, OFFSET_TO_0_9);
+
+  char* line=0;
+  size_t n=0;
+  ssize_t z=0;
+
+  for(;;){
+    // get the name from the first line of the block
+    z = getline(&line, &n, fp);
+    fclose(fopen(line, "r"));
+
+  }
+
   // for each block of 1+5 lines
   //   grab the name from the first line of the block
-  //   create a file named after the symbol in special_dir
+  //   create a file (in BLOCK_SYMBOL_DIR) named after the symbol
   //   write last 5 lines of the block to the new file
 
   fclose(in);
