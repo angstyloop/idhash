@@ -1,0 +1,31 @@
+################################################################################
+# CRYPTO
+
+# encrypt a file with SSL using AES256 Cipher-Block Chaining
+#openssl enc -aes-256-cbc -d -in <TEXTFILE> -out <CIPHERTEXTFILE>
+
+# decrypt a file with AES CBC
+#openssl enc -aes-256-cbc -d -in <CIPHERTEXTFILE> -out <TEXTFILE>
+
+# encrypt a file with GPG using AES256
+#gpg --cipher-algo AES256 -o <OUTPUT> -c <INPUT>
+
+# decrypt a file with GPG using AES256
+#gpg --cipher-algo AES256 -o <OUTPUT> -d <INPUT>
+
+
+################################################################################
+# NETWORK
+
+# discover hosts on 192.168.0.0/24
+#nmap -sL 192.168.0.0/24|grep -e "r .*[^0-9.]"
+
+# learn about nmap flag -sV
+#nmap|grep -- -sV
+
+################################################################################
+# LIVE TRIAGE SHORTCUTS
+
+# list users that have logged in remotely
+#lastlog|sed 1d|sed /Never/d
+
