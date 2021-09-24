@@ -2,10 +2,11 @@
 gcc block_symbol.c -o test-block-symbol -DTEST_BLOCK_SYMBOL -g -Wall
 */
 
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
-#define BLOCK_SYMBOLS_FILE "/home/falkor/source/idhash/block_alphabet.txt"
+#define BLOCK_SYMBOLS_FILE "/home/falkor/src/idhash/block_alphabet.txt"
 
 // Return true iff c is between l and r, inclusive.
 int char_in_closed_range(char c, char l, char r){
@@ -48,7 +49,8 @@ int block_symbol_index(char c){
     v = OFFSET_TO_0_9 + (c - '0') * BLOCK_ENTRY_HEIGHT;
   return v;
 }
-
+// Skip @nlines lines in the file at @fp (advancing the seek position in the 
+// file)
 // TODO: reimplement with fseek
 void skip_lines(FILE* fp, unsigned nlines){
   if(!nlines) return;
@@ -168,10 +170,10 @@ int main(){
   FILE* in3 = fopen(BLOCK_SYMBOLS_FILE, "r");
   FILE* fpv[] = {in1, in2, in3, 0};
   print_lines_n(fpv, stdout, 1, 5);
-  return EXIT_SUCCESS;
   fclose(in1);
   fclose(in2);
   fclose(in3);
+  return EXIT_SUCCESS;
 }
 #endif
 
@@ -187,36 +189,60 @@ void block_symbol_print(FILE* out, char c){
   fclose(in);
 }
 
-#define BLOCK_SYMBOL_DIR "/home/falkor/source/idhash/block_symbols"
+#define BLOCK_SYMBOL_DIR "/home/falkor/src/idhash/block_symbols"
+#define PATH_SEP "/"
 
-// Create a new file for each block symbol in the block symbols file.
-void split_block_symbol_file(){
-  FILE* fp = fopen(BLOCK_SYMBOLS_FILE, "r");
+// Create a new file in directory @dname for each block symbol in the block 
+// symbol file @fname.
+void split_block_symbols_file(char* fname, char* dname){
+  FILE* fp = fopen(fname, "r");
   if(!fp){
-    perror("split_block_symbol_file: Unable to open block-symbols file.");
+    perror("split_block_symbols_file: Unable to open block-symbols file.");
     exit(EXIT_FAILURE);
   }
   // go to line for '0' and start there
   skip_lines(fp, OFFSET_TO_0_9);
-
+  // loop through lines of block symbol file
   char* line=0;
   size_t n=0;
   ssize_t z=0;
-
+  int done=0;
   for(;;){
-    // get the name from the first line of the block
-    z = getline(&line, &n, fp);
-    fclose(fopen(line, "r"));
-
+    // get the name from the first line of the block. break if EOF or error.
+    if(1 > (z = getline(&line, &n, fp))) break;
+    size_t n = strlen(dname)/*directory name*/ 
+      + strlen(PATH_SEP)/*slash*/
+      + ('\n' == line[z-1] ? z-1 : z)/*filename without newline*/ 
+      + 1/*nullchar*/;
+    char* path = calloc(n, 1);
+    // note the newline char will not be written thanks to our choice of n, and 
+    // that last remaining empty byte will be zeroed thanks to calloc
+    snprintf(path, n, "%s%s%s", dname, PATH_SEP, line);
+    // create a new file with that name.
+    FILE* nfp = fopen(path, "r");
+    free(path);
+    // write the next BLOCK_SYMBOL_HEIGHT lines to the new file
+    for(int i=0; i<BLOCK_SYMBOL_HEIGHT; ++i){
+      if(1 > (z = getline(&line, &n, fp))){
+        done=1;
+        break;
+      }
+      fwrite(line, z, 1, nfp);
+    }
+    fclose(nfp);
+    if(done) break;
   }
 
-  // for each block of 1+5 lines
-  //   grab the name from the first line of the block
-  //   create a file (in BLOCK_SYMBOL_DIR) named after the symbol
-  //   write last 5 lines of the block to the new file
-
-  fclose(in);
+  if(line) free(line);
+  fclose(fp);
 }
+
+#ifdef TEST_SPLIT_BLOCK_SYMBOLS_FILE
+int main(){
+  split_block_symbols_file(BLOCK_SYMBOLS_FILE, BLOCK_SYMBOL_DIR);
+  return EXIT_SUCCESS;
+}
+#endif
 
 #ifdef TEST_BLOCK_SYMBOL
 int main(){
