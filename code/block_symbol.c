@@ -127,6 +127,9 @@ int main(){
 }
 #endif
 
+// separates the characters of two adjacent blocks on each line
+#define BLOCK_SYMBOL_SEP " "
+
 // Merge horizontally @nlines lines of files in null-terminated array 
 // @files.
 void print_lines_n(
@@ -151,8 +154,8 @@ void print_lines_n(
       // character, but note that the last line may be reached, which may
       // or may not have a terminating newline character.
       fwrite(line, 1, '\n' == line[z-1] ? z-1 : z, fpout);
-      // If $fp is not the last file pointer, write a separating space
-      // character to the output file.
+      // If $fp is not the last file pointer, write a separator (by default, a
+      // space) to the output file.
       if(*(fp+1)) fwrite(" ", 1, 1, fpout);
     }
     // If line $i not the last of the @nlines lines, write a terminating 
@@ -189,7 +192,7 @@ void block_symbol_print(FILE* out, char c){
   fclose(in);
 }
 
-#define BLOCK_SYMBOL_DIR "/home/falkor/src/idhash/block_symbols"
+#define BLOCK_SYMBOLS_DIR "/home/falkor/src/idhash/block_symbols"
 #define PATH_SEP "/"
 
 // Create a new file in directory @dname for each block symbol in the block 
@@ -239,7 +242,7 @@ void split_block_symbols_file(char* fname, char* dname){
 
 #ifdef TEST_SPLIT_BLOCK_SYMBOLS_FILE
 int main(){
-  split_block_symbols_file(BLOCK_SYMBOLS_FILE, BLOCK_SYMBOL_DIR);
+  split_block_symbols_file(BLOCK_SYMBOLS_FILE, BLOCK_SYMBOLS_DIR);
   return EXIT_SUCCESS;
 }
 #endif
@@ -258,42 +261,51 @@ int validate_text(char* text){
 // representation of that char.
 char* char_to_block_letter_path(char c){
   if(!block_symbol_exists(c)){
-    fprintf(stdout, "Block symbol for char '%c' doesn't exist.\n", c);
+    fprintf(stderr, "Block symbol for char '%c' doesn't exist.\n", c);
     exit(EXIT_FAILURE);
   }
-  size_t n = strlen(BLOCK_SYMBOLS_DIR) + strlen(PATH_SEPARATOR) 
+  size_t n = strlen(BLOCK_SYMBOLS_DIR) + strlen(PATH_SEP) 
     + 1/*char*/ + 1/*nullbyte*/;
   char* path = calloc(n, 1);
-  sprintf(path, n, "%s%s%c", BLOCK_SYMBOLS_DIR, PATH_SEPARATOR, c);
+  snprintf(path, n, "%s%s%c", BLOCK_SYMBOLS_DIR, PATH_SEP, c);
   return path;
 }
 
 // print the block letter version of a word.
 void blockify_word(char* text){
-  FILE* fp=0;
+  size_t sztext = strlen(text);
+  if(FOPEN_MAX < sztext){
+   fprintf(stderr, "Size of @text exceeds FOPEN_MAX.");
+   exit(EXIT_FAILURE);
+  }
+  FILE** fpvec = calloc(sztext, sizeof(FILE*));
   // loop over chars
   for(char* p=text; *p; ++p){
     // get path to block letter file. error if DNE.
-    char* path = char_to_block_letter_path(*p)
-    // open block letter file
-    if(!(fp = fopen(path, "rb"))){
+    char* path = char_to_block_letter_path(*p);
+    // open block letter file. add file pointer to vector of file pointers.
+    if(!(fpvec[p - text] = fopen(path, "rb"))){
       perror("fopen");
       exit(EXIT_FAILURE);
     }
-    // write entire file contents to STDOUT
-    size_t n=0;
-    char* buf = calloc(SIZE_MAX, 1);
-    while((n = fread(buf, 1, szbuf, fp)) && fwrite(buf, 1, szbuf, stdout));
-    // clean up
-    free(buf);
+    // GC
     free(path);
-    fclose(fp);
   }
+
+  print_lines_n(fpvec, stdout, 0, BLOCK_SYMBOL_HEIGHT);
+
+  // GC
+  for(char* p=text; *p; ++p){
+    fclose(fpvec[p - text]);
+  }
+  free(fpvec);
 }
 
-#ifdef test_blockify_word
+#ifdef TEST_BLOCKIFY_WORD
 int main(){
+  puts("\n");
   blockify_word("POOP");
+  puts("\n");
   return EXIT_SUCCESS;
 }
 #endif
