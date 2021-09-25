@@ -203,23 +203,23 @@ void split_block_symbols_file(char* fname, char* dname){
   // go to line for '0' and start there
   skip_lines(fp, OFFSET_TO_0_9);
   // loop through lines of block symbol file
-  char* line=0;
+  char* line= calloc(0, 1);
   size_t n=0;
   ssize_t z=0;
   int done=0;
   for(;;){
     // get the name from the first line of the block. break if EOF or error.
     if(1 > (z = getline(&line, &n, fp))) break;
-    size_t n = strlen(dname)/*directory name*/ 
+    size_t szpath = strlen(dname)/*directory name*/ 
       + strlen(PATH_SEP)/*slash*/
       + ('\n' == line[z-1] ? z-1 : z)/*filename without newline*/ 
       + 1/*nullchar*/;
-    char* path = calloc(n, 1);
+    char* path = calloc(szpath, 1);
     // note the newline char will not be written thanks to our choice of n, and 
     // that last remaining empty byte will be zeroed thanks to calloc
-    snprintf(path, n, "%s%s%s", dname, PATH_SEP, line);
+    snprintf(path, szpath, "%s%s%s", dname, PATH_SEP, line);
     // create a new file with that name.
-    FILE* nfp = fopen(path, "r");
+    FILE* nfp = fopen(path, "w");
     free(path);
     // write the next BLOCK_SYMBOL_HEIGHT lines to the new file
     for(int i=0; i<BLOCK_SYMBOL_HEIGHT; ++i){
@@ -227,7 +227,7 @@ void split_block_symbols_file(char* fname, char* dname){
         done=1;
         break;
       }
-      fwrite(line, z, 1, nfp);
+      fwrite(line, 1, z, nfp);
     }
     fclose(nfp);
     if(done) break;
@@ -240,6 +240,60 @@ void split_block_symbols_file(char* fname, char* dname){
 #ifdef TEST_SPLIT_BLOCK_SYMBOLS_FILE
 int main(){
   split_block_symbols_file(BLOCK_SYMBOLS_FILE, BLOCK_SYMBOL_DIR);
+  return EXIT_SUCCESS;
+}
+#endif
+
+// returns 0 if a string is all caps A-Z and 0-9, and 1 otherwise. @text is a 
+// null-terminated string
+int validate_text(char* text){
+  for(char* p=text; *p; ++p){
+    if(!block_symbol_exists(*p))
+      return 0;
+  }
+  return 1;
+}
+
+// given a char @c returns the path to the file containing the block letter
+// representation of that char.
+char* char_to_block_letter_path(char c){
+  if(!block_symbol_exists(c)){
+    fprintf(stdout, "Block symbol for char '%c' doesn't exist.\n", c);
+    exit(EXIT_FAILURE);
+  }
+  size_t n = strlen(BLOCK_SYMBOLS_DIR) + strlen(PATH_SEPARATOR) 
+    + 1/*char*/ + 1/*nullbyte*/;
+  char* path = calloc(n, 1);
+  sprintf(path, n, "%s%s%c", BLOCK_SYMBOLS_DIR, PATH_SEPARATOR, c);
+  return path;
+}
+
+// print the block letter version of a word.
+void blockify_word(char* text){
+  FILE* fp=0;
+  // loop over chars
+  for(char* p=text; *p; ++p){
+    // get path to block letter file. error if DNE.
+    char* path = char_to_block_letter_path(*p)
+    // open block letter file
+    if(!(fp = fopen(path, "rb"))){
+      perror("fopen");
+      exit(EXIT_FAILURE);
+    }
+    // write entire file contents to STDOUT
+    size_t n=0;
+    char* buf = calloc(SIZE_MAX, 1);
+    while((n = fread(buf, 1, szbuf, fp)) && fwrite(buf, 1, szbuf, stdout));
+    // clean up
+    free(buf);
+    free(path);
+    fclose(fp);
+  }
+}
+
+#ifdef test_blockify_word
+int main(){
+  blockify_word("POOP");
   return EXIT_SUCCESS;
 }
 #endif
