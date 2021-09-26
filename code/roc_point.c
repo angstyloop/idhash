@@ -35,11 +35,11 @@ enemy).
 #endif
 
 #ifndef DEFAULT_DUPLICATES_DATA_FILE
-#  define DEFAULT_DUPLICATES_DATA_FILE "/home/falkor/source/idhash/duplicates.dat"
+#  define DEFAULT_DUPLICATES_DATA_FILE "/home/falkor/src/idhash/duplicates.dat"
 #endif
 
 #ifndef DEFAULT_NONDUPLICATES_DATA_FILE
-#  define DEFAULT_NONDUPLICATES_DATA_FILE "/home/falkor/source/idhash/non-duplicates.dat"
+#  define DEFAULT_NONDUPLICATES_DATA_FILE "/home/falkor/src/idhash/non-duplicates.dat"
 #endif
 
 typedef struct roc_point roc_point;

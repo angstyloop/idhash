@@ -10,7 +10,7 @@
 
  * Compile with:
  *
- * gcc join_dir_to_name.c -Wall -g -o join-dir-to-name -DTEST_JOIN_DIR_TO_NAME
+ * gcc join_paths.c -Wall -g -o test-join-paths -DTEST_JOIN_PATHS
  * 
 
  * Usage: 
@@ -35,7 +35,6 @@
 #endif
 
 #ifndef PATH_SEP
-#  define PATH_SEP
 #  define PATH_SEP '/'
 #endif
 

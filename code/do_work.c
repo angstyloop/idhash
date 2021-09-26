@@ -127,31 +127,31 @@ void range_containing(guint range_out[2], guint range_a[2], guint range_b[2]){
 }
 
 #ifndef DEFAULT_JPEGS_DIR
-#  define DEFAULT_JPEGS_DIR "/home/falkor/source/idhash/jpegs"
+#  define DEFAULT_JPEGS_DIR "/home/falkor/src/idhash/jpegs"
 #endif
 
 #ifndef DEFAULT_NUMBERED_JPEGS_DIR
-#  define DEFAULT_NUMBERED_JPEGS_DIR "/home/falkor/source/idhash/numbered-jpegs"
+#  define DEFAULT_NUMBERED_JPEGS_DIR "/home/falkor/src/idhash/numbered-jpegs"
 #endif
 
 #ifndef DEFAULT_DUPLICATES_DIR
-#  define DEFAULT_DUPLICATES_DIR "/home/falkor/source/idhash/duplicates"
+#  define DEFAULT_DUPLICATES_DIR "/home/falkor/src/idhash/duplicates"
 #endif
 
 #ifndef DEFAULT_NONDUPLICATES_DIR
-#  define DEFAULT_NONDUPLICATES_DIR "/home/falkor/source/idhash/non-duplicates"
+#  define DEFAULT_NONDUPLICATES_DIR "/home/falkor/src/idhash/non-duplicates"
 #endif
 
 #ifndef DEFAULT_DUPLICATES_DATA_FILE
-#  define DEFAULT_DUPLICATES_DATA_FILE "/home/falkor/source/idhash/duplicates.dat"
+#  define DEFAULT_DUPLICATES_DATA_FILE "/home/falkor/src/idhash/duplicates.dat"
 #endif
 
 #ifndef DEFAULT_NONDUPLICATES_DATA_FILE
-#  define DEFAULT_NONDUPLICATES_DATA_FILE "/home/falkor/source/idhash/non-duplicates.dat"
+#  define DEFAULT_NONDUPLICATES_DATA_FILE "/home/falkor/src/idhash/non-duplicates.dat"
 #endif
 
 #ifndef DEFAULT_ROC_PLOT_FILE
-#  define DEFAULT_ROC_PLOT_FILE "/home/falkor/source/idhash/roc.plot"
+#  define DEFAULT_ROC_PLOT_FILE "/home/falkor/src/idhash/roc.plot"
 #endif
 
 #ifndef DEFAULT_ITERATIONS

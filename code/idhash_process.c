@@ -35,7 +35,7 @@ gcc -g -Wall idhash_process.c -o test-idhash-process -DTEST_IDHASH_PROCESS `pkg-
 #define SZ_BUF 256
 #define SZ_BUF_MAX 66535
 
-#define IDHASH_DIST_EXEC "/home/falkor/source/idhash/idhash-distance"
+#define IDHASH_DIST_EXEC "/home/falkor/src/idhash/idhash-distance"
 
 static void error(char* s);
 
