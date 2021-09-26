@@ -6,8 +6,7 @@
  *
  * Compile with:
  *
- * gcc join_dir_to_name.c -Wall -g -o join-dir-to-name \
- * -DTEST_JOIN_DIR_TO_NAME
+gcc join_dir_to_name.c -Wall -g -o test-join-dir-to-name -DTEST_JOIN_DIR_TO_NAME
  * 
  * Usage: 
  *
@@ -44,8 +43,9 @@
 #endif
 
 void join_dir_to_name(char out_buf[SZ_PATH], char dir[static 1], char* name){
-  char sep[1] = "";
+  char sep[2] = {0};
   char* p = strchr(dir, '\0');
+  char c = PATH_SEP;
   if(*dir && *(p-1) != PATH_SEP) *sep = PATH_SEP;
   snprintf(out_buf, SZ_PATH, "%s%s%s", dir, sep, name);
 }
@@ -83,6 +83,26 @@ int main() {
     join_dir_to_name(buf, dir, name);
     assert(!strcmp(buf, expect));
   }
+
+  /* Handles "."*/
+  {
+    char* dir = "/foo/bar/";
+    char* name = ".";
+    char* expect = "/foo/bar/.";
+    join_dir_to_name(buf, dir, name);
+    assert(!strcmp(buf, expect));
+  }
+
+  /* Handles ".."*/
+  {
+    char* dir = "/foo/bar/";
+    char* name = "..";
+    char* expect = "/foo/bar/..";
+    join_dir_to_name(buf, dir, name);
+    assert(!strcmp(buf, expect));
+  }
+
+
 
   return EXIT_SUCCESS;
 }
