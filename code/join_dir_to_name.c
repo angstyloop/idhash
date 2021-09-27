@@ -45,7 +45,6 @@ gcc join_dir_to_name.c -Wall -g -o test-join-dir-to-name -DTEST_JOIN_DIR_TO_NAME
 void join_dir_to_name(char out_buf[SZ_PATH], char dir[static 1], char* name){
   char sep[2] = {0};
   char* p = strchr(dir, '\0');
-  char c = PATH_SEP;
   if(*dir && *(p-1) != PATH_SEP) *sep = PATH_SEP;
   snprintf(out_buf, SZ_PATH, "%s%s%s", dir, sep, name);
 }

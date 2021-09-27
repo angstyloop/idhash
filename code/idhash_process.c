@@ -1,57 +1,24 @@
+/// @file: idhash_process.c
 /* 
 gcc -g -Wall idhash_process.c -o test-idhash-process -DTEST_IDHASH_PROCESS `pkg-config vips --cflags --libs`
 */
 
-#ifndef ASSERT_H
-#  define ASSERT_H
-#  include <assert.h>
-#endif
-
-#ifndef STDLIB_H
-#  define STDLIB_H
-#  include <stdlib.h>
-#endif
-
-#ifndef STDIO_H
-#  define STDIO_H
-#  include <stdio.h>
-#endif
-
-#ifndef IDHASH_H
-#  define IDHASH_H
-#  include "idhash.h"
-#endif
-
-#ifndef TYPES_H
-#  define TYPES_H
-#  include <sys/types.h>
-#endif
-
-#ifndef WAIT_H
-#  define WAIT_H
-#  include <wait.h>
-#endif
-
-#define SZ_BUF 256
-#define SZ_BUF_MAX 66535
-
-#define IDHASH_DIST_EXEC "/home/falkor/src/idhash/idhash-distance"
+#include "idhash_process.h"
 
 static void error(char* s);
 
-// @poutbuf: a pointer to the output buffer
-// @pn: a pointer to the size of the output buffer
-// @fd: the file descriptor of the input file
-//
-// Modifies *poutbuf and *pn.
-//
-// Read from file descriptor @fd into the output buffer at poutbuf,
-// doubling the size of the output buffer at @poutbuf with realloc and
-// modifying @pn as needed, until EOF is reached or an error occurs.
-//
-// Exit if realloc triggers an out-of-memory error, or if there are 
-// more input chars than SIZE_MAX, or if there is a read error.
-//
+/// Modifies *poutbuf and *pn.
+///
+/// Read from file descriptor @fd into the output buffer at poutbuf,
+/// doubling the size of the output buffer at @poutbuf with realloc and
+/// modifying @pn as needed, until EOF is reached or an error occurs. Exit 
+/// if realloc triggers an out-of-memory error, or if there are more input 
+/// chars than SIZE_MAX, or if there is a read error.
+///
+/// @poutbuf: a pointer to the output buffer
+/// @pn: a pointer to the size of the output buffer
+/// @fd: the file descriptor of the input file
+
 void readto(char** poutbuf, size_t* pn, int fd) {
   char readbuf[SZ_BUF]={0};
   if (!*pn || *pn < SZ_BUF) *pn = SZ_BUF;

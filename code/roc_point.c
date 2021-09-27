@@ -12,6 +12,10 @@ classifier. It shows how much of an improvement the classifier is over a
 random one (a coin flip). It was first used in the 1940s to quantify the 
 performance of radar operators (who had to classify pings as friend or 
 enemy).
+
+The area under the curve (AUC), a value in [0,1], is used to quantify 
+the predictive power of a classifier. In medicine, for breast tumor 
+classification, .9 is considered good enough to be acceptable.
 */
 
 #ifndef STDLIB_H
@@ -35,11 +39,11 @@ enemy).
 #endif
 
 #ifndef DEFAULT_DUPLICATES_DATA_FILE
-#  define DEFAULT_DUPLICATES_DATA_FILE "/home/falkor/src/idhash/duplicates.dat"
+#  define DEFAULT_DUPLICATES_DATA_FILE "/home/falkor/idhash/duplicates.dat"
 #endif
 
 #ifndef DEFAULT_NONDUPLICATES_DATA_FILE
-#  define DEFAULT_NONDUPLICATES_DATA_FILE "/home/falkor/src/idhash/non-duplicates.dat"
+#  define DEFAULT_NONDUPLICATES_DATA_FILE "/home/falkor/idhash/non-duplicates.dat"
 #endif
 
 typedef struct roc_point roc_point;
