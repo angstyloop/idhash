@@ -23,7 +23,7 @@ This implementation uses VIPS for the image processing steps.
 
 # Misc. Notes
 
-##The x and y difference arrays
+## The x and y difference arrays
 
 These will contain differences of adjacent
 pixels, starting at (0, 0) and moving right and down, subtracting the
