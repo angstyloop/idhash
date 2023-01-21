@@ -19,7 +19,8 @@ This implementation uses VIPS for the image processing steps.
 
 4. The idhash is formed by viewing each component 64-bit bit-array as a 64-bit integer. These four 64-bit integers are then stored in an array (or concatenated if you have some kind a "big integer" class handy.) in the following order:
 
-<dx> <dy> <ix> <iy>
+dx dy ix iy
+
 
 # Misc. Notes
 
